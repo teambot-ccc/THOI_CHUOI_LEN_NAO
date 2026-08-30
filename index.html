@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Captain Boy - Universe Adventure</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&family=Bangers&display=swap');
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #fce4ec 0%, #e1f5fe 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Nền xinh xắn với mây và sao lấp lánh */
+        .bg-decor {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; pointer-events: none;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(15px);
+            border: 3px solid #fff;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border-radius: 30px;
+        }
+
+        .char-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 4px solid transparent;
+        }
+        .char-card.active {
+            border-color: #ff80ab;
+            transform: scale(1.05);
+            background: #fff;
+        }
+
+        .item-slot {
+            width: 70px; height: 70px;
+            background: #fff;
+            border: 2px dashed #ff80ab;
+            border-radius: 15px;
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+            transition: 0.3s;
+        }
+        .item-slot.unlocked {
+            border-style: solid;
+            background: #fdf2f8;
+            animation: bounce 0.5s ease;
+        }
+
+        .avatar-preview {
+            width: 200px; height: 200px;
+            background: #fff;
+            border-radius: 50%;
+            border: 5px solid #ff80ab;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .floating-item {
+            position: absolute;
+            transition: 0.5s all cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0; transform: scale(0);
+        }
+        .floating-item.show { opacity: 1; transform: scale(1); }
+
+        .btn-main {
+            background: linear-gradient(45deg, #ff80ab, #82b1ff);
+            color: white; font-weight: bold;
+            padding: 15px 30px; border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(255, 128, 171, 0.4);
+            transition: 0.3s;
+        }
+        .btn-main:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(255, 128, 171, 0.6); }
+
+        @keyframes bounce { 0%, 100% {transform: scale(1);} 50% {transform: scale(1.2);} }
+    </style>
+</head>
+<body class="p-4 md:p-10">
+
+    <div class="bg-decor" id="decor-container"></div>
+
+    <div class="max-w-6xl mx-auto space-y-10">
+        
+        <!-- TIÊU ĐỀ -->
+        <div class="text-center">
+            <h1 style="font-family: 'Bangers', cursive;" class="text-6xl text-pink-500 tracking-wider">Captain Boy Adventure</h1>
+            <p class="text-gray-500 font-bold mt-2">Duy trì chuỗi mỗi ngày - Thu thập trọn bộ trang bị!</p>
+        </div>
+
+        <!-- BƯỚC 1: CHỌN NHÂN VẬT -->
+        <section id="step-1" class="glass p-8">
+            <h2 class="text-2xl font-bold mb-6 text-center text-blue-500"><i class="fa-solid fa-user-astronaut mr-2"></i> CHỌN NHÂN VẬT CỦA BẠN</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="char-card glass p-4 rounded-3xl text-center active" onclick="selectChar(0)">
+                    <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Felix" class="w-24 h-24 mx-auto mb-2">
+                    <p class="font-bold">Felix Cool</p>
+                </div>
+                <div class="char-card glass p-4 rounded-3xl text-center" onclick="selectChar(1)">
+                    <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Aneka" class="w-24 h-24 mx-auto mb-2">
+                    <p class="font-bold">Aneka Cute</p>
+                </div>
+                <div class="char-card glass p-4 rounded-3xl text-center" onclick="selectChar(2)">
+                    <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Buddy" class="w-24 h-24 mx-auto mb-2">
+                    <p class="font-bold">Buddy Energetic</p>
+                </div>
+                <div class="char-card glass p-4 rounded-3xl text-center" onclick="selectChar(3)">
+                    <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Max" class="w-24 h-24 mx-auto mb-2">
+                    <p class="font-bold">Max Legend</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <!-- CỘT TRÁI: NHÂN VẬT & TỦ ĐỒ -->
+            <div class="lg:col-span-2 space-y-10">
+                <div class="glass p-8 flex flex-col md:flex-row items-center gap-10">
+                    <div class="avatar-preview flex items-center justify-center bg-pink-50">
+                        <img id="main-avatar" src="https://api.dicebear.com/7.x/adventurer/svg?seed=Felix" class="w-40 h-40">
+                        <!-- Các món đồ bay lên nhân vật -->
+                        <img id="acc-1" src="" class="floating-item w-16 h-16 top-5 right-5">
+                        <img id="acc-2" src="" class="floating-item w-16 h-16 bottom-5 left-5">
+                    </div>
+                    
+                    <div class="flex-1">
+                        <div class="mb-4">
+                            <span class="text-xs font-bold text-pink-500 uppercase tracking-widest">Chuỗi hiện tại</span>
+                            <div class="flex items-center gap-4">
+                                <i class="fa-solid fa-fire text-5xl text-orange-500"></i>
+                                <span id="streak-num" class="text-7xl font-black text-blue-600">00</span>
+                                <span class="text-2xl font-bold text-gray-400">NGÀY</span>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-5 gap-3" id="wardrobe">
+                            <!-- Items sẽ được sinh ra ở đây -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FORM ĐIỀN THÔNG TIN -->
+                <div class="glass p-8">
+                    <h2 class="text-2xl font-bold mb-6 text-pink-500 uppercase"><i class="fa-solid fa-pen-nib mr-2"></i> Xác nhận giữ chuỗi</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <input type="text" id="userName" placeholder="Nickname của bạn..." class="w-full p-4 rounded-2xl border-2 border-pink-100 focus:border-pink-400 outline-none">
+                            <div class="w-full h-32 border-2 border-dashed border-gray-300 rounded-2xl flex flex-col items-center justify-center text-gray-400 cursor-pointer hover:bg-white transition" onclick="document.getElementById('fileInp').click()">
+                                <i class="fa-solid fa-image text-3xl"></i>
+                                <span id="fileName" class="text-xs mt-2">Tải ảnh minh chứng donate</span>
+                                <input type="file" id="fileInp" class="hidden" onchange="document.getElementById('fileName').innerText = this.files[0].name">
+                            </div>
+                        </div>
+                        <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100">
+                            <p class="text-sm font-bold text-blue-600 mb-2 underline">Nhiệm vụ hôm nay:</p>
+                            <p class="text-xs text-blue-500 italic">Mở khóa: <span id="next-item-name" class="font-black text-pink-500">Áo Hoodie</span></p>
+                            <button onclick="submitDaily()" class="btn-main w-full mt-6 uppercase tracking-widest">Gửi lửa & Mặc đồ 🔥</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CỘT PHẢI: BẢNG XẾP HẠNG -->
+            <div class="glass p-6">
+                <h2 class="text-xl font-bold mb-6 text-center text-blue-600 border-b-2 border-blue-100 pb-4">XẾP HẠNG THUYỀN VIÊN</h2>
+                <div class="space-y-4 max-h-[600px] overflow-y-auto pr-2">
+                    <div class="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border border-pink-100">
+                        <div class="flex items-center gap-3">
+                            <span class="text-xl">🥇</span>
+                            <span class="font-bold text-sm">Minh Anh</span>
+                        </div>
+                        <span class="bg-pink-500 text-white px-3 py-1 rounded-full text-xs font-bold">30 Ngày</span>
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <span class="text-xl text-gray-400">🥈</span>
+                            <span class="font-bold text-sm">Captain_Fan</span>
+                        </div>
+                        <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-bold">25 Ngày</span>
+                    </div>
+                    <!-- Fake data -->
+                    <div class="flex items-center justify-between p-4 bg-white/50 rounded-2xl opacity-70 italic">
+                        <span class="text-xs font-bold">@Bạn (Vị trí #12)</span>
+                        <span class="text-xs">0 Ngày</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DATA NHÂN VẬT & ĐỒ
+        const charData = [
+            { name: "Felix", avatar: "Felix", items: ["Hoodie", "Kính râm", "Tai nghe", "Gậy ánh sáng", "Mũ phi hành"] },
+            { name: "Aneka", avatar: "Aneka", items: ["Váy hồng", "Nơ cài", "Túi chéo", "Cây kẹo mút", "Kính tri thức"] },
+            { name: "Buddy", avatar: "Buddy", items: ["Áo bóng chày", "Băng đô", "Ván trượt", "Đồng hồ", "Giày Jordan"] },
+            { name: "Max", avatar: "Max", items: ["Áo choàng", "Mặt nạ", "Khiên bảo vệ", "Thắt lưng VIP", "Pet robot"] }
+        ];
+
+        let selectedCharIndex = 0;
+        let streak = 0;
+
+        // KHỞI TẠO NỀN XINH
+        function initDecor() {
+            const container = document.getElementById('decor-container');
+            for(let i=0; i<20; i++) {
+                const star = document.createElement('i');
+                star.className = `fa-solid fa-star absolute text-pink-200 text-xs opacity-50`;
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                container.appendChild(star);
+            }
+        }
+
+        // CHỌN NHÂN VẬT
+        function selectChar(index) {
+            selectedCharIndex = index;
+            document.querySelectorAll('.char-card').forEach((c, i) => {
+                c.classList.toggle('active', i === index);
+            });
+            document.getElementById('main-avatar').src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${charData[index].avatar}`;
+            streak = 0; // Reset demo
+            renderWardrobe();
+            updateUI();
+        }
+
+        // VẼ TỦ ĐỒ
+        function renderWardrobe() {
+            const wardrobe = document.getElementById('wardrobe');
+            wardrobe.innerHTML = '';
+            const items = charData[selectedCharIndex].items;
+            
+            for(let i=0; i<5; i++) {
+                const slot = document.createElement('div');
+                slot.id = `slot-${i+1}`;
+                slot.className = `item-slot ${streak > i ? 'unlocked' : ''}`;
+                slot.innerHTML = streak > i ? '<i class="fa-solid fa-check text-pink-500"></i>' : `<span class="text-[10px] text-gray-300 font-bold">${i+1}</span>`;
+                wardrobe.appendChild(slot);
+            }
+        }
+
+        // CẬP NHẬT UI
+        function updateUI() {
+            document.getElementById('streak-num').innerText = streak.toString().padStart(2, '0');
+            const items = charData[selectedCharIndex].items;
+            document.getElementById('next-item-name').innerText = streak < 5 ? items[streak] : "Full bộ rồiii!";
+        }
+
+        // NỘP MINH CHỨNG
+        function submitDaily() {
+            const name = document.getElementById('userName').value;
+            if(!name) return alert("Nhập nickname của bạn đã nhé!");
+            
+            if(streak < 5) {
+                streak++;
+                renderWardrobe();
+                updateUI();
+                
+                // Hiệu ứng mở đồ
+                const currentSlot = document.getElementById(`slot-${streak}`);
+                gsap.from(currentSlot, { scale: 1.5, duration: 0.5, ease: "back.out" });
+                
+                // Giả lập hiện đồ lên nhân vật (dùng icon thay thế vì không có ảnh thật)
+                const acc = document.getElementById(`acc-${streak % 2 === 0 ? 2 : 1}`);
+                acc.src = `https://api.dicebear.com/7.x/icons/svg?seed=${charData[selectedCharIndex].items[streak-1]}`;
+                acc.classList.add('show');
+
+                alert(`🎉 Tuyệt vời ${name}! Bạn đã nhận được: ${charData[selectedCharIndex].items[streak-1]}`);
+            } else {
+                alert("Bạn đã mở khóa toàn bộ tủ đồ rồi! Chờ bộ sưu tập mới nha.");
+            }
+        }
+
+        initDecor();
+        renderWardrobe();
+        updateUI();
+    </script>
+</body>
+</html>
