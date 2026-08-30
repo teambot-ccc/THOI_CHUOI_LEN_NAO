@@ -3,193 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Captain Boy - Universe Adventure</title>
+    <title>Captain Boy - Star Streak Game</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&family=Bangers&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Quicksand:wght@500;700&family=Montserrat:wght@900&display=swap');
 
-        body {
-            font-family: 'Quicksand', sans-serif;
-            background: linear-gradient(135deg, #fce4ec 0%, #e1f5fe 100%);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
+        :root { --p-pink: #ff85a2; --p-blue: #7d5fff; --p-yellow: #fff200; }
+        body { font-family: 'Quicksand', sans-serif; background: #050a18; color: #fff; overflow-x: hidden; }
+        #bg-canvas { position: fixed; top: 0; left: 0; z-index: -1; }
 
-        /* Nền xinh xắn với mây và sao lấp lánh */
-        .bg-decor {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1; pointer-events: none;
-        }
+        .glass { background: rgba(255, 255, 255, 0.07); backdrop-filter: blur(20px); border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 40px; }
+        
+        /* CHARACTER DRESS-UP SYSTEM */
+        .avatar-box { position: relative; width: 300px; height: 300px; background: radial-gradient(circle, #2a2e52 0%, #050a18 100%); border-radius: 50%; border: 6px solid var(--p-pink); box-shadow: 0 0 30px var(--p-pink); overflow: hidden; }
+        .layer { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); opacity: 0; transform: translateY(50px) scale(0.8); }
+        .layer.active { opacity: 1; transform: translateY(0) scale(1); }
+        .layer.base { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 10px rgba(255,255,255,0.3)); }
 
-        .glass {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(15px);
-            border: 3px solid #fff;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            border-radius: 30px;
-        }
+        .item-slot { width: 60px; height: 60px; border: 2px dashed rgba(255,255,255,0.3); border-radius: 15px; display: flex; align-items: center; justify-content: center; position: relative; transition: 0.3s; }
+        .item-slot.unlocked { border: 2px solid var(--p-pink); background: rgba(255, 133, 162, 0.2); animation: pulse 2s infinite; }
 
-        .char-card {
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: 4px solid transparent;
-        }
-        .char-card.active {
-            border-color: #ff80ab;
-            transform: scale(1.05);
-            background: #fff;
-        }
+        .comic-text { font-family: 'Bangers', cursive; letter-spacing: 2px; }
+        .btn-action { background: linear-gradient(45deg, var(--p-pink), var(--p-blue)); box-shadow: 0 10px 20px rgba(125, 95, 255, 0.3); transition: 0.3s; }
+        .btn-action:hover { transform: translateY(-5px) scale(1.02); filter: brightness(1.2); }
 
-        .item-slot {
-            width: 70px; height: 70px;
-            background: #fff;
-            border: 2px dashed #ff80ab;
-            border-radius: 15px;
-            display: flex; align-items: center; justify-content: center;
-            position: relative;
-            transition: 0.3s;
-        }
-        .item-slot.unlocked {
-            border-style: solid;
-            background: #fdf2f8;
-            animation: bounce 0.5s ease;
-        }
-
-        .avatar-preview {
-            width: 200px; height: 200px;
-            background: #fff;
-            border-radius: 50%;
-            border: 5px solid #ff80ab;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .floating-item {
-            position: absolute;
-            transition: 0.5s all cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            opacity: 0; transform: scale(0);
-        }
-        .floating-item.show { opacity: 1; transform: scale(1); }
-
-        .btn-main {
-            background: linear-gradient(45deg, #ff80ab, #82b1ff);
-            color: white; font-weight: bold;
-            padding: 15px 30px; border-radius: 50px;
-            box-shadow: 0 5px 15px rgba(255, 128, 171, 0.4);
-            transition: 0.3s;
-        }
-        .btn-main:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(255, 128, 171, 0.6); }
-
-        @keyframes bounce { 0%, 100% {transform: scale(1);} 50% {transform: scale(1.2);} }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 133, 162, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(255, 133, 162, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 133, 162, 0); } }
     </style>
 </head>
 <body class="p-4 md:p-10">
 
-    <div class="bg-decor" id="decor-container"></div>
+    <canvas id="bg-canvas"></canvas>
 
     <div class="max-w-6xl mx-auto space-y-10">
         
-        <!-- TIÊU ĐỀ -->
-        <div class="text-center">
-            <h1 style="font-family: 'Bangers', cursive;" class="text-6xl text-pink-500 tracking-wider">Captain Boy Adventure</h1>
-            <p class="text-gray-500 font-bold mt-2">Duy trì chuỗi mỗi ngày - Thu thập trọn bộ trang bị!</p>
-        </div>
+        <!-- HEADER: TÊN PROJECT -->
+        <header class="text-center space-y-2">
+            <h1 class="comic-text text-7xl text-transparent bg-clip-text bg-gradient-to-b from-white to-pink-400">CAPTAIN BOY UNIVERSE</h1>
+            <p class="text-blue-300 font-bold tracking-[0.5em] text-xs uppercase">The Ultimate Donation Streak Game</p>
+        </header>
 
-        <!-- BƯỚC 1: CHỌN NHÂN VẬT -->
-        <section id="step-1" class="glass p-8">
-            <h2 class="text-2xl font-bold mb-6 text-center text-blue-500"><i class="fa-solid fa-user-astronaut mr-2"></i> CHỌN NHÂN VẬT CỦA BẠN</h2>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div class="char-card glass p-4 rounded-3xl text-center active" onclick="selectChar(0)">
-                    <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Felix" class="w-24 h-24 mx-auto mb-2">
-                    <p class="font-bold">Felix Cool</p>
-                </div>
-                <div class="char-card glass p-4 rounded-3xl text-center" onclick="selectChar(1)">
-                    <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Aneka" class="w-24 h-24 mx-auto mb-2">
-                    <p class="font-bold">Aneka Cute</p>
-                </div>
-                <div class="char-card glass p-4 rounded-3xl text-center" onclick="selectChar(2)">
-                    <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Buddy" class="w-24 h-24 mx-auto mb-2">
-                    <p class="font-bold">Buddy Energetic</p>
-                </div>
-                <div class="char-card glass p-4 rounded-3xl text-center" onclick="selectChar(3)">
-                    <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Max" class="w-24 h-24 mx-auto mb-2">
-                    <p class="font-bold">Max Legend</p>
-                </div>
+        <!-- STEP 1: CHỌN NHÂN VẬT -->
+        <section class="glass p-6 text-center">
+            <h2 class="font-bold text-pink-400 mb-4 uppercase italic">Chọn nhân vật của bạn</h2>
+            <div class="flex justify-center gap-6" id="char-selection">
+                <button onclick="changeCharacter('Felix')" class="w-16 h-16 rounded-full border-4 border-white hover:border-pink-500 transition overflow-hidden bg-white"><img src="https://api.dicebear.com/7.x/notAvatars/svg?seed=Felix"></button>
+                <button onclick="changeCharacter('Aneka')" class="w-16 h-16 rounded-full border-4 border-white hover:border-pink-500 transition overflow-hidden bg-white"><img src="https://api.dicebear.com/7.x/notAvatars/svg?seed=Aneka"></button>
+                <button onclick="changeCharacter('Buddy')" class="w-16 h-16 rounded-full border-4 border-white hover:border-pink-500 transition overflow-hidden bg-white"><img src="https://api.dicebear.com/7.x/notAvatars/svg?seed=Buddy"></button>
             </div>
         </section>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            <!-- CỘT TRÁI: NHÂN VẬT & TỦ ĐỒ -->
+            <!-- PHẦN CHÍNH: NHÂN VẬT & TỦ ĐỒ -->
             <div class="lg:col-span-2 space-y-10">
-                <div class="glass p-8 flex flex-col md:flex-row items-center gap-10">
-                    <div class="avatar-preview flex items-center justify-center bg-pink-50">
-                        <img id="main-avatar" src="https://api.dicebear.com/7.x/adventurer/svg?seed=Felix" class="w-40 h-40">
-                        <!-- Các món đồ bay lên nhân vật -->
-                        <img id="acc-1" src="" class="floating-item w-16 h-16 top-5 right-5">
-                        <img id="acc-2" src="" class="floating-item w-16 h-16 bottom-5 left-5">
+                <div class="glass p-10 flex flex-col md:flex-row items-center gap-12 border-t-4 border-pink-500">
+                    <!-- SÂN KHẤU NHÂN VẬT -->
+                    <div class="avatar-box flex items-center justify-center">
+                        <img id="char-base" src="https://api.dicebear.com/7.x/notAvatars/svg?seed=Felix" class="layer base">
+                        <!-- Đồ mặc thêm -->
+                        <img id="item-layer-1" src="https://www.svgrepo.com/show/444917/pants.svg" class="layer" style="filter: hue-rotate(150deg);">
+                        <img id="item-layer-2" src="https://www.svgrepo.com/show/532354/glasses.svg" class="layer">
+                        <img id="item-layer-3" src="https://www.svgrepo.com/show/415951/hat.svg" class="layer">
+                        <img id="item-layer-4" src="https://www.svgrepo.com/show/422437/mail.svg" class="layer" style="width:30%; top:10%; right:10%;">
+                        <img id="item-layer-5" src="https://www.svgrepo.com/show/355106/magic-wand.svg" class="layer">
                     </div>
-                    
-                    <div class="flex-1">
-                        <div class="mb-4">
-                            <span class="text-xs font-bold text-pink-500 uppercase tracking-widest">Chuỗi hiện tại</span>
-                            <div class="flex items-center gap-4">
-                                <i class="fa-solid fa-fire text-5xl text-orange-500"></i>
-                                <span id="streak-num" class="text-7xl font-black text-blue-600">00</span>
-                                <span class="text-2xl font-bold text-gray-400">NGÀY</span>
+
+                    <!-- CHỈ SỐ CHUỖI -->
+                    <div class="flex-1 text-center md:text-left space-y-6">
+                        <div>
+                            <p class="text-pink-400 font-bold uppercase text-xs tracking-widest">Chuỗi rồng của bạn</p>
+                            <div class="flex items-center justify-center md:justify-start gap-4">
+                                <i class="fa-solid fa-fire-glow text-6xl text-orange-500 animate-pulse"></i>
+                                <span id="streak-display" class="text-8xl font-black italic text-white" style="font-family: 'Montserrat'">00</span>
+                                <span class="text-2xl font-bold text-gray-500">NGÀY</span>
                             </div>
                         </div>
-                        
-                        <div class="grid grid-cols-5 gap-3" id="wardrobe">
-                            <!-- Items sẽ được sinh ra ở đây -->
+
+                        <!-- TỦ ĐỒ MỐC NGÀY -->
+                        <div class="flex gap-3 justify-center md:justify-start">
+                            <div id="slot-1" class="item-slot"><i class="fa-solid fa-shirt opacity-30"></i></div>
+                            <div id="slot-2" class="item-slot"><i class="fa-solid fa-glasses opacity-30"></i></div>
+                            <div id="slot-3" class="item-slot"><i class="fa-solid fa-hat-wizard opacity-30"></i></div>
+                            <div id="slot-4" class="item-slot"><i class="fa-solid fa-envelope-open-text opacity-30"></i></div>
+                            <div id="slot-5" class="item-slot"><i class="fa-solid fa-wand-sparkles opacity-30"></i></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- FORM ĐIỀN THÔNG TIN -->
-                <div class="glass p-8">
-                    <h2 class="text-2xl font-bold mb-6 text-pink-500 uppercase"><i class="fa-solid fa-pen-nib mr-2"></i> Xác nhận giữ chuỗi</h2>
+                <!-- FORM XÁC NHẬN (SEND DATA TO GOOGLE SHEET) -->
+                <div class="glass p-8 space-y-6">
+                    <h2 class="comic-text text-3xl text-pink-500"><i class="fa-solid fa-upload mr-3"></i>Gửi minh chứng giữ lửa</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-4">
-                            <input type="text" id="userName" placeholder="Nickname của bạn..." class="w-full p-4 rounded-2xl border-2 border-pink-100 focus:border-pink-400 outline-none">
-                            <div class="w-full h-32 border-2 border-dashed border-gray-300 rounded-2xl flex flex-col items-center justify-center text-gray-400 cursor-pointer hover:bg-white transition" onclick="document.getElementById('fileInp').click()">
-                                <i class="fa-solid fa-image text-3xl"></i>
-                                <span id="fileName" class="text-xs mt-2">Tải ảnh minh chứng donate</span>
+                            <input type="text" id="nickname" placeholder="Nhập nickname của bạn..." class="w-full bg-white/5 border-2 border-white/10 p-4 rounded-2xl focus:border-pink-500 outline-none transition">
+                            <div class="w-full h-36 border-4 border-dashed border-white/10 rounded-3xl flex flex-col items-center justify-center text-gray-500 cursor-pointer hover:bg-white/5 transition" onclick="document.getElementById('fileInp').click()">
+                                <i class="fa-solid fa-cloud-arrow-up text-4xl mb-2"></i>
+                                <span id="fileName" class="text-xs">Tải ảnh giao dịch hôm nay</span>
                                 <input type="file" id="fileInp" class="hidden" onchange="document.getElementById('fileName').innerText = this.files[0].name">
                             </div>
                         </div>
-                        <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100">
-                            <p class="text-sm font-bold text-blue-600 mb-2 underline">Nhiệm vụ hôm nay:</p>
-                            <p class="text-xs text-blue-500 italic">Mở khóa: <span id="next-item-name" class="font-black text-pink-500">Áo Hoodie</span></p>
-                            <button onclick="submitDaily()" class="btn-main w-full mt-6 uppercase tracking-widest">Gửi lửa & Mặc đồ 🔥</button>
+                        <div class="bg-blue-600/10 p-6 rounded-[2rem] border border-blue-500/20 flex flex-col justify-between">
+                            <div class="text-sm">
+                                <p class="text-blue-400 font-bold italic mb-1">Mục tiêu hôm nay:</p>
+                                <p class="text-white text-lg font-black uppercase">Mở khóa: <span id="next-item" class="text-pink-400">Trang phục mới</span></p>
+                            </div>
+                            <button onclick="handleDonateSubmit()" id="btn-submit" class="btn-action w-full py-5 rounded-2xl font-black text-lg uppercase tracking-widest mt-4">
+                                Gửi Duyệt & Mặc Đồ 🔥
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- CỘT PHẢI: BẢNG XẾP HẠNG -->
-            <div class="glass p-6">
-                <h2 class="text-xl font-bold mb-6 text-center text-blue-600 border-b-2 border-blue-100 pb-4">XẾP HẠNG THUYỀN VIÊN</h2>
-                <div class="space-y-4 max-h-[600px] overflow-y-auto pr-2">
-                    <div class="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border border-pink-100">
+            <div class="glass p-6 border-l-4 border-blue-500">
+                <h3 class="comic-text text-2xl text-center text-blue-400 mb-6 border-b border-white/10 pb-4">Top Chiến Thần</h3>
+                <div class="space-y-4" id="leaderboard">
+                    <!-- Fake data demo -->
+                    <div class="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
                         <div class="flex items-center gap-3">
-                            <span class="text-xl">🥇</span>
-                            <span class="font-bold text-sm">Minh Anh</span>
+                            <span class="text-2xl">🥇</span>
+                            <span class="font-bold">Thùy Vy</span>
                         </div>
-                        <span class="bg-pink-500 text-white px-3 py-1 rounded-full text-xs font-bold">30 Ngày</span>
+                        <span class="bg-pink-500 px-3 py-1 rounded-full text-xs font-black">45 Ngày</span>
                     </div>
-                    <div class="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm">
-                        <div class="flex items-center gap-3">
-                            <span class="text-xl text-gray-400">🥈</span>
-                            <span class="font-bold text-sm">Captain_Fan</span>
-                        </div>
-                        <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-bold">25 Ngày</span>
-                    </div>
-                    <!-- Fake data -->
-                    <div class="flex items-center justify-between p-4 bg-white/50 rounded-2xl opacity-70 italic">
-                        <span class="text-xs font-bold">@Bạn (Vị trí #12)</span>
-                        <span class="text-xs">0 Ngày</span>
+                    <!-- Vị trí của user -->
+                    <div class="p-4 bg-blue-600/20 border border-blue-500 rounded-2xl text-center">
+                        <p class="text-[10px] uppercase font-bold text-blue-400">Vị trí của bạn</p>
+                        <p class="font-black italic">Chưa xếp hạng</p>
                     </div>
                 </div>
             </div>
@@ -197,91 +140,104 @@
     </div>
 
     <script>
-        // DATA NHÂN VẬT & ĐỒ
-        const charData = [
-            { name: "Felix", avatar: "Felix", items: ["Hoodie", "Kính râm", "Tai nghe", "Gậy ánh sáng", "Mũ phi hành"] },
-            { name: "Aneka", avatar: "Aneka", items: ["Váy hồng", "Nơ cài", "Túi chéo", "Cây kẹo mút", "Kính tri thức"] },
-            { name: "Buddy", avatar: "Buddy", items: ["Áo bóng chày", "Băng đô", "Ván trượt", "Đồng hồ", "Giày Jordan"] },
-            { name: "Max", avatar: "Max", items: ["Áo choàng", "Mặt nạ", "Khiên bảo vệ", "Thắt lưng VIP", "Pet robot"] }
-        ];
+        // CẤU HÌNH BACKEND (THAY LINK APPSCRIPT CỦA BẠN VÀO ĐÂY)
+        const SCRIPT_URL = "DÁN_WEB_APP_URL_TẠI_BƯỚC_2_VÀO_ĐÂY";
 
-        let selectedCharIndex = 0;
         let streak = 0;
+        let charSeed = "Felix";
+        const items = ["Áo Nano", "Kính Siêu Việt", "Mũ Captain", "Thư Tinh Tú", "Trượng Ánh Sáng"];
 
-        // KHỞI TẠO NỀN XINH
-        function initDecor() {
-            const container = document.getElementById('decor-container');
-            for(let i=0; i<20; i++) {
-                const star = document.createElement('i');
-                star.className = `fa-solid fa-star absolute text-pink-200 text-xs opacity-50`;
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                container.appendChild(star);
-            }
+        // 1. HIỆU ỨNG NỀN THIÊN HÀ
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+        function initStars() {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            stars = [];
+            for(let i=0; i<150; i++) stars.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*2, d: Math.random()*0.5});
         }
-
-        // CHỌN NHÂN VẬT
-        function selectChar(index) {
-            selectedCharIndex = index;
-            document.querySelectorAll('.char-card').forEach((c, i) => {
-                c.classList.toggle('active', i === index);
+        function drawStars() {
+            ctx.clearRect(0,0,canvas.width, canvas.height);
+            ctx.fillStyle = "white";
+            stars.forEach(s => {
+                ctx.beginPath(); ctx.arc(s.x, s.y, s.s, 0, Math.PI*2); ctx.fill();
+                s.y += s.d; if(s.y > canvas.height) s.y = 0;
             });
-            document.getElementById('main-avatar').src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${charData[index].avatar}`;
-            streak = 0; // Reset demo
-            renderWardrobe();
-            updateUI();
+            requestAnimationFrame(drawStars);
+        }
+        window.addEventListener('resize', initStars);
+        initStars(); drawStars();
+
+        // 2. CHỌN NHÂN VẬT
+        function changeCharacter(seed) {
+            charSeed = seed;
+            document.getElementById('char-base').src = `https://api.dicebear.com/7.x/notAvatars/svg?seed=${seed}`;
+            gsap.from("#char-base", { scale: 0, rotation: 180, duration: 0.8 });
+            checkStatusFromServer(); // Kiểm tra xem user này đã có streak chưa
         }
 
-        // VẼ TỦ ĐỒ
-        function renderWardrobe() {
-            const wardrobe = document.getElementById('wardrobe');
-            wardrobe.innerHTML = '';
-            const items = charData[selectedCharIndex].items;
+        // 3. GỬI DỮ LIỆU LÊN GOOGLE SHEET
+        async function handleDonateSubmit() {
+            const name = document.getElementById('nickname').value;
+            const file = document.getElementById('fileInp').files[0];
+
+            if(!name || !file) return alert("Vui lòng nhập tên và ảnh minh chứng!");
+
+            document.getElementById('btn-submit').innerText = "ĐANG GỬI... ⏳";
+            document.getElementById('btn-submit').disabled = true;
+
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = async () => {
+                const payload = { nickname: name, proof: reader.result };
+                try {
+                    await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+                    alert("✅ Đã gửi minh chứng! Hãy chờ Admin duyệt để tăng chuỗi và mặc đồ nhé!");
+                    document.getElementById('btn-submit').innerText = "GỬI DUYỆT & MẶC ĐỒ 🔥";
+                    document.getElementById('btn-submit').disabled = false;
+                } catch (e) {
+                    alert("Lỗi kết nối server!");
+                }
+            };
+        }
+
+        // 4. KIỂM TRA TRẠNG THÁI (ĐÃ DUYỆT CHƯA)
+        async function checkStatusFromServer() {
+            const name = document.getElementById('nickname').value;
+            if(!name) return;
+
+            try {
+                const response = await fetch(SCRIPT_URL);
+                const data = await response.json();
+                const user = data.find(u => u.nickname === name);
+
+                if(user) {
+                    updateVisuals(user.streak);
+                }
+            } catch (e) { console.log("Chưa có dữ liệu user"); }
+        }
+
+        function updateVisuals(newStreak) {
+            streak = newStreak;
+            document.getElementById('streak-display').innerText = streak.toString().padStart(2, '0');
             
-            for(let i=0; i<5; i++) {
-                const slot = document.createElement('div');
-                slot.id = `slot-${i+1}`;
-                slot.className = `item-slot ${streak > i ? 'unlocked' : ''}`;
-                slot.innerHTML = streak > i ? '<i class="fa-solid fa-check text-pink-500"></i>' : `<span class="text-[10px] text-gray-300 font-bold">${i+1}</span>`;
-                wardrobe.appendChild(slot);
+            // Mặc đồ dựa trên số streak đã duyệt
+            for(let i=1; i<=5; i++) {
+                const layer = document.getElementById(`item-layer-${i}`);
+                const slot = document.getElementById(`slot-${i}`);
+                if(i <= streak) {
+                    layer.classList.add('active');
+                    slot.classList.add('unlocked');
+                    slot.innerHTML = '<i class="fa-solid fa-check text-pink-500"></i>';
+                }
             }
-        }
-
-        // CẬP NHẬT UI
-        function updateUI() {
-            document.getElementById('streak-num').innerText = streak.toString().padStart(2, '0');
-            const items = charData[selectedCharIndex].items;
-            document.getElementById('next-item-name').innerText = streak < 5 ? items[streak] : "Full bộ rồiii!";
-        }
-
-        // NỘP MINH CHỨNG
-        function submitDaily() {
-            const name = document.getElementById('userName').value;
-            if(!name) return alert("Nhập nickname của bạn đã nhé!");
             
-            if(streak < 5) {
-                streak++;
-                renderWardrobe();
-                updateUI();
-                
-                // Hiệu ứng mở đồ
-                const currentSlot = document.getElementById(`slot-${streak}`);
-                gsap.from(currentSlot, { scale: 1.5, duration: 0.5, ease: "back.out" });
-                
-                // Giả lập hiện đồ lên nhân vật (dùng icon thay thế vì không có ảnh thật)
-                const acc = document.getElementById(`acc-${streak % 2 === 0 ? 2 : 1}`);
-                acc.src = `https://api.dicebear.com/7.x/icons/svg?seed=${charData[selectedCharIndex].items[streak-1]}`;
-                acc.classList.add('show');
-
-                alert(`🎉 Tuyệt vời ${name}! Bạn đã nhận được: ${charData[selectedCharIndex].items[streak-1]}`);
-            } else {
-                alert("Bạn đã mở khóa toàn bộ tủ đồ rồi! Chờ bộ sưu tập mới nha.");
-            }
+            // Hiệu ứng pháo hoa khi có đồ mới
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
         }
 
-        initDecor();
-        renderWardrobe();
-        updateUI();
+        // Tự động kiểm tra mỗi 30 giây
+        setInterval(checkStatusFromServer, 30000);
     </script>
 </body>
 </html>
