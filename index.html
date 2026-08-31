@@ -61,12 +61,12 @@
             <div class="grid grid-cols-3 gap-3">
                 <!-- Mẫu cừu 1 -->
                 <div class="ava-box selected" onclick="pickAva(this, 'https://api.dicebear.com/7.x/bottts/svg?seed=SheepBoy1')">
-                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=SheepBoy1" class="w-full h-16 object-contain">
+                    <img src="avatar1.jpg" class="w-full h-16 object-contain">
                     <p class="text-[10px] font-bold mt-1">Cừu Boss</p>
                 </div>
                 <!-- Mẫu cừu 2 -->
                 <div class="ava-box" onclick="pickAva(this, 'https://api.dicebear.com/7.x/bottts/svg?seed=SheepGirl2')">
-                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=SheepGirl2" class="w-full h-16 object-contain">
+                    <img src="avatar2.jpg" class="w-full h-16 object-contain">
                     <p class="text-[10px] font-bold mt-1">Cừu Cute</p>
                 </div>
                 <!-- Tải lên -->
@@ -130,7 +130,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-3">
                             <label class="font-black text-xs text-gray-600">SỐ TIỀN DNT HÔM NAY:</label>
-                            <input type="number" id="amt" placeholder="Ví dụ: 50000" class="w-full border-4 border-black p-3 rounded-xl font-bold bg-white">
+                            <input type="number" id="amt" placeholder="Ví dụ: 11.603" class="w-full border-4 border-black p-3 rounded-xl font-bold bg-white">
                             
                             <!-- Nút tải bill có hiệu ứng đổi trạng thái -->
                             <input type="file" id="bill" class="hidden" accept="image/*" onchange="updateFileName(this)">
@@ -160,10 +160,10 @@
     </div>
 
     <script>
-        const APP_URL = "DÁN_LINK_WEB_APP_CỦA_BAN_Ở_ĐÂY";
+        const APP_URL = "https://script.google.com/macros/s/AKfycbxMBM4NbmFF0ME9tfY_MwnKygN8SDzLFSZulV0evuediIwH_6EmewYb1gnhgAlpW_8qcw/exec";
 
         let myNick = "";
-        let myAva = "https://api.dicebear.com/7.x/bottts/svg?seed=SheepBoy1"; // Mặc định mẫu 1
+        let myAva = "avatar1.jpg"; // Mặc định mẫu 1
         let myStreak = 0;
         let isMusicPlaying = false;
 
