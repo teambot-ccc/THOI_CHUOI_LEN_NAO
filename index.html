@@ -210,51 +210,31 @@
             }
         }
 
-        async function sync() {
+      async function sync() {
             try {
                 const res = await fetch(APP_URL);
                 const data = await res.json();
                 
+                // CẬP NHẬT BẢNG ƯU TÚ (Leaderboard)
                 const grid = document.getElementById('farm-grid');
                 grid.innerHTML = '';
+                
+                // Sắp xếp theo chuỗi cao nhất và lấy 8 người đầu tiên
                 data.sort((a,b) => b.streak - a.streak).slice(0, 8).forEach(u => {
                     grid.innerHTML += `
                         <div class="bg-white/90 border-2 border-black p-2 rounded-xl flex items-center gap-2 shadow-[2px_2px_0_#000]">
                             <img src="${u.avatar}" class="w-8 h-8 rounded-full border-2 border-black object-cover bg-white">
                             <div class="overflow-hidden">
                                 <p class="text-[9px] font-black truncate">${u.nickname}</p>
-                                <p class="text-[10px] text-red-500 font-bold">${u.streak} 🔥</p>
+                                <p class="text-[10px] text-red-500 font-bold">${u.streak} DAYS 🔥</p>
                             </div>
                         </div>`;
                 });
 
+                // TÌM THÔNG TIN CỦA BẢN THÂN
                 const me = data.find(u => u.nickname.toUpperCase() === myNick);
                 if(me) updateUI(me);
-            } catch(e) {}
-        }
-
-        function updateUI(me) {
-            const streak = parseInt(me.streak);
-            document.getElementById('user-streak').innerText = `${streak} DAYS 🔥`;
-            
-            if(me.isBroken) {
-                document.getElementById('map-container').classList.add('broken-mode');
-                document.getElementById('action-box').classList.add('broken-mode');
-                document.getElementById('alert-broken').classList.remove('hidden');
-            } else {
-                document.getElementById('map-container').classList.remove('broken-mode');
-                document.getElementById('action-box').classList.remove('broken-mode');
-                document.getElementById('alert-broken').classList.add('hidden');
-                
-                if(me.avatar) {
-                    myAva = me.avatar;
-                    document.getElementById('user-ava-header').src = myAva;
-                    document.getElementById('player-pawn').src = myAva;
-                }
-                
-                movePawn(streak);
-                checkMilestones(streak);
-            }
+            } catch(e) { console.error("Lỗi đồng bộ dữ liệu"); }
         }
 
         function movePawn(step) {
