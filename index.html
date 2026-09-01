@@ -296,53 +296,55 @@
         }
 
         async function doAction(type) {
-            const amt = document.getElementById('amt').value;
-            const billFile = document.getElementById('bill').files[0];
+        const amt = document.getElementById('amt').value;
+        const billFile = document.getElementById('bill').files[0];
 
-            if(type === 'submit' && (!amt || !billFile)) {
-                return alert("Vui lòng nhập số tiền và tải ảnh bill minh chứng!");
-            }
-
-            const btn = type === 'submit' ? document.getElementById('btnSubmit') : document.getElementById('btnRestore');
-            const oldTxt = btn.innerText;
-            btn.disabled = true; btn.innerText = "ĐANG XỬ LÝ...";
-
-            // Hàm gửi dữ liệu lên Apps Script
-            const sendData = async (base64Proof = "") => {
-                try {
-                    const response = await fetch(APP_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            nickname: myNick,
-                            amount: amt || 0,
-                            proof: base64Proof || (type === 'restore' ? "Khôi phục chuỗi" : ""),
-                            avatar: myAva,
-                            action: type
-                        })
-                    });
-                    const res = await response.json();
-                    if(res.status === "success") {
-                        alert(type === 'submit' ? "Báo danh thành công!" : "Đã khôi phục chuỗi! Hãy báo danh ngay.");
-                        if(type === 'submit') {
-                            document.getElementById('amt').value = '';
-                            document.getElementById('bill').value = '';
-                            updateFileName({files: []});
-                        }
-                        await sync();
-                    } else { alert("Lỗi từ máy chủ: " + res.msg); }
-                } catch(e) { alert("Lỗi kết nối máy chủ!"); }
-                finally { btn.disabled = false; btn.innerText = oldTxt; }
-            };
-
-            // Nếu là báo danh thì đọc file bill thành Base64
-            if (type === 'submit' && billFile) {
-                const reader = new FileReader();
-                reader.readAsDataURL(billFile);
-                reader.onload = () => sendData(reader.result);
-            } else {
-                sendData(); // Restore không cần đọc bill
-            }
+        // Nếu báo danh thì bắt buộc có bill và tiền
+        if(type === 'submit' && (!amt || !billFile)) {
+            return alert("Vui lòng nhập số tiền và tải ảnh bill để Captain duyệt nhé!");
         }
-    </script>
-</body>
-</html>
+
+        const btn = type === 'submit' ? document.getElementById('btnSubmit') : document.getElementById('btnRestore');
+        const oldTxt = btn.innerText;
+        btn.disabled = true; 
+        btn.innerText = "ĐANG XỬ LÝ...";
+
+        const sendData = async (base64Proof = "") => {
+            try {
+                const response = await fetch(APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        nickname: myNick,
+                        amount: amt || 0,
+                        proof: base64Proof,
+                        avatar: myAva,
+                        action: type
+                    })
+                });
+                const res = await response.json();
+                if(res.status === "success") {
+                    alert(type === 'submit' ? "Gửi báo danh thành công! Đã cập nhật minh chứng mới." : "Khôi phục thành công!");
+                    document.getElementById('amt').value = '';
+                    document.getElementById('bill').value = '';
+                    updateFileName({files: []});
+                    await sync(); // Cập nhật lại giao diện
+                } else {
+                    alert("Lỗi máy chủ: " + res.msg);
+                }
+            } catch(e) {
+                alert("Lỗi kết nối! Hãy kiểm tra mạng.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = oldTxt;
+            }
+        };
+
+        if (billFile) {
+            const reader = new FileReader();
+            reader.readAsDataURL(billFile);
+            reader.onload = () => sendData(reader.result);
+        } else {
+            sendData(""); // Trường hợp Restore
+        }
+    }
+</script>
