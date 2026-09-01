@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CAPTAIN BOY - STAR VOYAGE</title>
+    <title>CAPTAIN BOY - THỔI CHUỖI LÊN NÀO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Quicksand:wght@700&display=swap');
@@ -14,15 +13,13 @@
         .comic-border { border: 5px solid #000; box-shadow: 8px 8px 0px #000; border-radius: 30px; background: white; }
         .btn-comic { background: #ef4444; color: white; border: 3px solid #000; font-family: 'Bangers'; padding: 12px 20px; box-shadow: 0 5px 0 #000; border-radius: 20px; transition: 0.2s; cursor: pointer; }
         .btn-comic:active { transform: translateY(4px); box-shadow: 0 1px 0 #000; }
-        .btn-comic:disabled { background: #9ca3af; cursor: not-allowed; box-shadow: none; }
-        
-        .streak-gray { filter: grayscale(1); opacity: 0.6; transition: 0.5s; pointer-events: none; }
-        .farm-bg { background-image: url('https://img.freepik.com/free-vector/farm-scene-with-green-field-trees_1308-54273.jpg'); background-size: cover; background-position: center; border: 6px solid #4d2c19; position: relative; min-height: 450px; }
-        .farm-overlay { background: rgba(255,255,255,0.2); backdrop-filter: blur(1px); position: absolute; inset: 0; border-radius: 20px; }
-        #game-map { display: grid; grid-template-columns: repeat(auto-fill, minmax(55px, 1fr)); gap: 10px; position: relative; padding: 20px; }
-        .map-tile { aspect-ratio: 1; border: 2px solid #000; border-radius: 12px; background: rgba(255,255,255,0.8); display: flex; align-items: center; justify-content: center; font-family: 'Bangers'; font-size: 1.2rem; }
+        .streak-gray { filter: grayscale(1); opacity: 0.6; transition: 0.5s; }
+        .farm-bg { background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://img.freepik.com/free-vector/farm-scene-with-green-field-trees_1308-54273.jpg'); background-size: cover; min-height: 400px; }
+        #game-map { display: grid; grid-template-columns: repeat(10, 1fr); gap: 8px; position: relative; padding: 20px; }
+        .map-tile { aspect-ratio: 1; border: 2px solid #000; border-radius: 10px; background: rgba(255,255,255,0.8); display: flex; align-items: center; justify-content: center; font-family: 'Bangers'; font-size: 1rem; }
         .map-tile.active { background: #fef08a; border-color: #f59e0b; }
-        #player-pawn { position: absolute; width: 55px; height: 55px; z-index: 100; transition: all 0.8s; border: 3px solid #000; border-radius: 50%; background: white; object-fit: cover; }
+        #player-pawn { position: absolute; width: 50px; height: 50px; z-index: 100; transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); border: 3px solid #000; border-radius: 50%; background: white; object-fit: cover; pointer-events: none; }
+        .ava-box.selected { border: 4px solid #ef4444; background: #fee2e2; }
     </style>
 </head>
 <body>
@@ -31,89 +28,97 @@
     <div id="video-modal" class="fixed inset-0 z-[3000] bg-black/90 hidden flex items-center justify-center p-4">
         <div class="comic-border p-6 max-w-2xl w-full text-center space-y-4">
             <h2 class="text-3xl text-blue-600 font-black" style="font-family: 'Bangers'">QUEST: XEM VIDEO ĐỂ CỨU CHUỖI!</h2>
-            <p class="text-sm font-bold">Hãy xem video của Captain ít nhất 30s để khôi phục màu sắc nhé.</p>
-            
             <div class="aspect-video border-4 border-black rounded-xl overflow-hidden bg-black">
-                <!-- THAY LINK YOUTUBE TẠI ĐÂY (Lưu ý: Thay chữ watch?v= thành embed/) -->
-                <iframe id="yt-player" class="w-full h-full" src="https://www.youtube.com/embed/cwlToxaWuL8&list=RDcwlToxaWuL8&start_radio=1?enablejsapi=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                <iframe id="yt-player" class="w-full h-full" src="https://www.youtube.com/embed/cwlToxaWuL8&list=RDcwlToxaWuL8&start_radio=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
             </div>
-
             <div id="timer-box" class="text-2xl font-black text-red-500">30s</div>
-            <button id="confirm-restore-btn" onclick="finishVideoQuest()" class="btn-comic w-full hidden bg-green-500">XÁC NHẬN KHÔI PHỤC THÀNH CÔNG! ✅</button>
+            <button id="confirm-restore-btn" onclick="finishVideoQuest()" class="btn-comic w-full hidden bg-green-500">XÁC NHẬN KHÔI PHỤC ✅</button>
         </div>
     </div>
 
-    <!-- MAIN UI (GIỮ NGUYÊN PHẦN HEADER VÀ LOGIN CŨ CỦA BẠN) -->
+    <!-- LOGIN SCREEN -->
     <div id="login-screen" class="fixed inset-0 z-[2000] bg-sky-500 flex items-center justify-center p-4">
         <div class="comic-border p-8 max-w-md w-full text-center space-y-6">
-            <h1 class="text-4xl text-blue-700" style="font-family: 'Bangers'">STAR VOYAGE</h1>
-            <div class="grid grid-cols-3 gap-3">
-                <div class="ava-box selected" onclick="pickAva(this, 'avatar1.jpg')"><img src="avatar1.jpg" class="w-full h-16 object-contain"></div>
-                <div class="ava-box" onclick="pickAva(this, 'avatar2.jpg')"><img src="avatar2.jpg" class="w-full h-16 object-contain"></div>
-                <div class="ava-box border-2 border-dashed border-gray-400" onclick="document.getElementById('uploadAva').click()"><div id="pre-view" class="py-3 text-xs">Ảnh riêng</div><input type="file" id="uploadAva" class="hidden" accept="image/*" onchange="handleUpload(this)"></div>
+            <h1 class="text-4xl text-blue-700" style="font-family: 'Bangers'">THỔI CHUỖI LÊN NÀO</h1>
+            <div class="grid grid-cols-3 gap-3" id="ava-picker">
+                <div class="ava-box p-2 cursor-pointer rounded-xl border-2 border-black selected" onclick="pickAva(this, 'avatar1.jpg')"><img src="avatar1.jpg" class="w-full"></div>
+                <div class="ava-box p-2 cursor-pointer rounded-xl border-2 border-black" onclick="pickAva(this, 'avatar2.jpg')"><img src="avatar2.jpg" class="w-full"></div>
+                <div class="ava-box p-2 cursor-pointer rounded-xl border-2 border-dashed border-gray-400 flex items-center justify-center" onclick="document.getElementById('uploadAva').click()">
+                    <span class="text-xs">Tải ảnh</span>
+                    <input type="file" id="uploadAva" class="hidden" accept="image/*" onchange="handleUpload(this)">
+                </div>
             </div>
             <input type="text" id="nick" class="w-full border-4 border-black p-3 rounded-xl text-center font-black" placeholder="TÊN THUYỀN VIÊN...">
-            <button onclick="startGame()" class="btn-comic w-full text-2xl uppercase">VÀO TRANG TRẠI!</button>
+            <button onclick="startGame()" class="btn-comic w-full text-2xl">VÀO TRANG TRẠI!</button>
         </div>
     </div>
 
+    <!-- MAIN UI -->
     <div id="main-ui" class="hidden max-w-6xl mx-auto p-4 space-y-6">
         <header class="flex justify-between items-center bg-white border-4 border-black p-4 rounded-3xl">
             <div class="flex items-center gap-4">
                 <img id="user-ava-header" src="" class="w-16 h-16 rounded-full border-4 border-black object-cover">
-                <div>
-                    <p id="user-nick-header" class="text-2xl font-black text-blue-600 uppercase"></p>
-                    <div class="flex gap-1" id="badge-container"></div>
-                </div>
+                <p id="user-nick-header" class="text-2xl font-black text-blue-600 uppercase"></p>
             </div>
-            <div class="text-right flex items-center gap-4">
-                <div id="streak-group">
-                    <p class="text-[10px] font-black text-gray-400">CHẶNG ĐƯỜNG</p>
-                    <p id="user-streak" class="text-3xl font-black text-red-500" style="font-family: 'Bangers'">0 DAYS 🔥</p>
-                </div>
-                <button onclick="toggleMusic()" class="w-12 h-12 bg-yellow-300 border-3 border-black rounded-full shadow-[3px_3px_0_#000]"><i class="fas fa-volume-high" id="music-icon"></i></button>
+            <div class="text-right">
+                <p class="text-[10px] font-black text-gray-400">CHẶNG ĐƯỜNG</p>
+                <p id="user-streak" class="text-3xl font-black text-red-500" style="font-family: 'Bangers'">0 DAYS 🔥</p>
             </div>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div class="lg:col-span-8 space-y-6">
-                <div class="comic-border bg-white/60 relative overflow-hidden"><div id="game-map"><img id="player-pawn" src="" alt="pawn"></div></div>
+                <div class="comic-border bg-white overflow-hidden relative">
+                    <div id="game-map">
+                        <img id="player-pawn" src="" alt="pawn">
+                    </div>
+                </div>
                 
                 <div id="action-box" class="comic-border p-6 bg-yellow-50">
-                    <div id="alert-streak" class="hidden bg-red-600 text-white p-4 rounded-2xl border-4 border-black mb-4 font-black flex items-center gap-3">
-                        <i class="fas fa-skull-crossbones text-2xl"></i> BẠN ĐÃ MẤT CHUỖI! HÃY XEM VIDEO ĐỂ CỨU CHUỖI.
+                    <div id="alert-streak" class="hidden bg-red-600 text-white p-4 rounded-2xl border-4 border-black mb-4 font-black">
+                        ⚠️ CHUỖI ĐÃ BỊ ĐỨT! HÃY KHÔI PHỤC NGAY.
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="space-y-3">
-                            <input type="number" id="amt" placeholder="Số tiền DNT hôm nay..." class="w-full border-4 border-black p-3 rounded-xl font-bold">
-                            <input type="file" id="bill" class="hidden" accept="image/*" onchange="updateFileName(this)">
-                            <button type="button" onclick="document.getElementById('bill').click()" id="bill-btn" class="w-full border-3 border-dashed border-black p-3 rounded-xl font-black text-xs"><i class="fas fa-upload"></i> <span id="bill-text">TẢI BILL MINH CHỨNG</span></button>
-                        </div>
-                        <div class="flex flex-col justify-end gap-3">
-                            <button id="btnSubmit" onclick="doAction('submit')" class="btn-comic h-[55px] text-xl">GỬI BÁO DANH 🔥</button>
-                            <button id="btnRestore" onclick="startVideoQuest()" class="btn-comic bg-blue-500 h-[55px] text-xl hidden">KHÔI PHỤC CHUỖI (XEM VIDEO) 🆘</button>
-                        </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="number" id="amt" placeholder="Số tiền DNT..." class="border-4 border-black p-3 rounded-xl font-bold">
+                        <button onclick="document.getElementById('bill').click()" class="bg-white border-2 border-dashed border-black p-3 rounded-xl text-sm font-bold">
+                            <span id="bill-text">TẢI BILL MINH CHỨNG</span>
+                            <input type="file" id="bill" class="hidden" accept="image/*" onchange="document.getElementById('bill-text').innerText='Đã chọn bill ✅'">
+                        </button>
+                        <button id="btnSubmit" onclick="doAction()" class="btn-comic md:col-span-2">GỬI BÁO DANH 🔥</button>
+                        <button id="btnRestore" onclick="startVideoQuest()" class="btn-comic bg-blue-500 md:col-span-2 hidden">KHÔI PHỤC CHUỖI (XEM VIDEO) 🆘</button>
                     </div>
                 </div>
             </div>
 
             <div class="lg:col-span-4">
-                <div class="farm-bg comic-border p-4 relative"><div class="farm-overlay"></div><h3 class="text-center font-black text-white text-2xl mb-6 drop-shadow-[3px_3px_0px_#000]">ĐỒNG CỪU ƯU TÚ 🐑</h3><div id="farm-grid" class="relative grid grid-cols-2 gap-3"></div></div>
+                <div class="farm-bg comic-border p-4">
+                    <h3 class="text-center font-black text-white text-xl mb-4">ĐỒNG CỪU ƯU TÚ 🐑</h3>
+                    <div id="farm-grid" class="grid grid-cols-1 gap-2"></div>
+                </div>
             </div>
         </div>
     </div>
 
-    <audio id="bgm" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
-
     <script>
-        const APP_URL = "DÁN_LINK_WEB_APP_CỦA_BẠN_Ở_ĐÂY";
-        let myNick = ""; let myAva = "avatar1.jpg";
-        let questTimer;
+        // THAY LINK WEB APP CỦA BẠN VÀO ĐÂY
+        const APP_URL = "https://script.google.com/macros/s/AKfycbzSWQ5cHnFVFSWRpyZbY033NAKkTJGsvqm36RjhzNpnx_7yiTlICvVLw1yxpy0D1QwVPA/exec"; 
+        
+        let myNick = ""; 
+        let myAva = "avatar1.jpg";
 
-        // --- CÁC HÀM CŨ (pickAva, handleUpload, updateFileName, initMap, movePawn, toggleMusic...) ---
-        function pickAva(el, url) { document.querySelectorAll('.ava-box').forEach(x => x.classList.remove('selected')); el.classList.add('selected'); myAva = url; }
-        function handleUpload(input) { if (input.files && input.files[0]) { let r = new FileReader(); r.onload=(e)=>{document.getElementById('pre-view').innerHTML=`<img src="${e.target.result}" class='w-full h-full object-cover rounded-lg'>`; myAva=e.target.result;}; r.readAsDataURL(input.files[0]); } }
-        function updateFileName(i) { if(i.files[0]){ document.getElementById('bill-text').innerText="ĐÃ CHỌN: "+i.files[0].name; document.getElementById('bill-btn').classList.add('bg-green-100'); } }
+        function pickAva(el, url) {
+            document.querySelectorAll('.ava-box').forEach(x => x.classList.remove('selected'));
+            el.classList.add('selected');
+            myAva = url;
+        }
+
+        function handleUpload(input) {
+            if (input.files && input.files[0]) {
+                let r = new FileReader();
+                r.onload = (e) => { myAva = e.target.result; };
+                r.readAsDataURL(input.files[0]);
+            }
+        }
 
         function startGame() {
             myNick = document.getElementById('nick').value.trim().toUpperCase();
@@ -123,95 +128,109 @@
             document.getElementById('user-nick-header').innerText = myNick;
             document.getElementById('user-ava-header').src = myAva;
             document.getElementById('player-pawn').src = myAva;
-            initMap(); sync(); setInterval(sync, 15000);
+            initMap();
+            sync();
         }
 
-        function initMap() { let m = document.getElementById('game-map'); for (let i=1; i<=60; i++) { let t = document.createElement('div'); t.id = `tile-${i}`; t.className="map-tile"; t.innerText=i; m.appendChild(t); } }
+        function initMap() {
+            let m = document.getElementById('game-map');
+            for (let i=1; i<=60; i++) {
+                let t = document.createElement('div');
+                t.id = `tile-${i}`;
+                t.className="map-tile";
+                t.innerText=i;
+                m.appendChild(t);
+            }
+        }
 
         async function sync() {
             try {
-                const res = await fetch(APP_URL); const data = await res.json();
-                const grid = document.getElementById('farm-grid'); grid.innerHTML = '';
-                data.sort((a,b)=>b.streak-a.streak).slice(0,8).forEach(u => {
-                    let isUserBroken = checkBroken(u.lastDate, u.status);
-                    grid.innerHTML += `<div class="bg-white border-2 border-black p-2 rounded-xl flex items-center gap-2 ${isUserBroken ? 'streak-gray' : ''} shadow-[3px_3px_0_#000]"><img src="${u.avatar || 'https://api.dicebear.com/7.x/notionists/svg?seed=Sheep'}" class="w-8 h-8 rounded-full border-2 border-black object-cover bg-white"><div><p class="text-[9px] font-black truncate">${u.nickname}</p><p class="text-[10px] text-red-500 font-bold">${u.streak} 🔥</p></div></div>`;
+                const res = await fetch(APP_URL);
+                const data = await res.json();
+                
+                const grid = document.getElementById('farm-grid');
+                grid.innerHTML = '';
+                
+                data.sort((a,b) => b.streak - a.streak).forEach(u => {
+                    grid.innerHTML += `
+                        <div class="bg-white border-2 border-black p-2 rounded-xl flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <img src="${u.avatar}" class="w-8 h-8 rounded-full border border-black">
+                                <span class="font-bold text-xs">${u.nickname}</span>
+                            </div>
+                            <span class="text-red-500 font-black">${u.streak} 🔥</span>
+                        </div>`;
                 });
+
                 const me = data.find(u => u.nickname.toUpperCase() === myNick);
                 if(me) {
                     document.getElementById('user-streak').innerText = `${me.streak} DAYS 🔥`;
-                    movePawn(parseInt(me.streak));
-                    checkTime(me);
+                    movePawn(me.streak);
+                    if(me.isBroken) {
+                        document.getElementById('alert-streak').classList.remove('hidden');
+                        document.getElementById('btnRestore').classList.remove('hidden');
+                        document.getElementById('btnSubmit').classList.add('hidden');
+                    }
                 }
-            } catch(e){}
+            } catch(e) { console.log("Chưa kết nối App URL"); }
         }
 
-        function checkBroken(lastDate, status) {
-            if(!lastDate) return false;
-            let diff = (new Date() - new Date(lastDate)) / (1000 * 60 * 60 * 24);
-            return (diff > 1.2 && status === "Approved");
+        function movePawn(step) {
+            if (step <= 0) return;
+            const target = document.getElementById(`tile-${step}`);
+            if(!target) return;
+            const pawn = document.getElementById('player-pawn');
+            const mapRect = document.getElementById('game-map').getBoundingClientRect();
+            const targetRect = target.getBoundingClientRect();
+            
+            pawn.style.left = `${targetRect.left - mapRect.left + (targetRect.width/2) - 25}px`;
+            pawn.style.top = `${targetRect.top - mapRect.top + (targetRect.height/2) - 25}px`;
         }
 
-        function checkTime(me) {
-            let isBroken = checkBroken(me.lastDate, me.status);
-            document.getElementById('streak-group').classList.toggle('streak-gray', isBroken);
-            document.getElementById('alert-streak').classList.toggle('hidden', !isBroken);
-            document.getElementById('btnRestore').classList.toggle('hidden', !isBroken);
-            document.getElementById('btnSubmit').classList.toggle('hidden', isBroken);
-            // Nếu bị đứt chuỗi thì xám cả Map
-            document.getElementById('game-map').classList.toggle('streak-gray', isBroken);
-        }
-
-        // --- HÀNH ĐỘNG VIDEO QUEST ---
         function startVideoQuest() {
             document.getElementById('video-modal').classList.remove('hidden');
-            let timeLeft = 30;
-            const timerBox = document.getElementById('timer-box');
-            const confirmBtn = document.getElementById('confirm-restore-btn');
-            
-            confirmBtn.classList.add('hidden');
-            timerBox.classList.remove('hidden');
-            
-            questTimer = setInterval(() => {
-                timeLeft--;
-                timerBox.innerText = timeLeft + "s";
-                if(timeLeft <= 0) {
-                    clearInterval(questTimer);
-                    timerBox.classList.add('hidden');
-                    confirmBtn.classList.remove('hidden');
+            let time = 30;
+            let count = setInterval(() => {
+                time--;
+                document.getElementById('timer-box').innerText = time + "s";
+                if(time <= 0) {
+                    clearInterval(count);
+                    document.getElementById('confirm-restore-btn').classList.remove('hidden');
                 }
             }, 1000);
         }
 
         async function finishVideoQuest() {
-            const btn = document.getElementById('confirm-restore-btn');
-            btn.disabled = true; btn.innerText = "ĐANG KHÔI PHỤC...";
-            
-            try {
-                await fetch(APP_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ nickname: myNick, action: "restore_video_success" })
-                });
-                alert("🎉 CHUỖI ĐÃ SÁNG LẠI! Bạn có thể tiếp tục báo danh.");
-                document.getElementById('video-modal').classList.add('hidden');
-                sync(); // Cập nhật lại giao diện ngay lập tức
-            } catch(e) { alert("Lỗi kết nối!"); }
+            await fetch(APP_URL, {
+                method: 'POST',
+                body: JSON.stringify({ nickname: myNick, action: "restore" })
+            });
+            alert("Đã khôi phục chuỗi! Hãy báo danh ngay.");
+            location.reload();
         }
 
-        async function doAction(type) {
-            let amt = document.getElementById('amt').value; let file = document.getElementById('bill').files[0];
+        async function doAction() {
+            let amt = document.getElementById('amt').value;
+            let file = document.getElementById('bill').files[0];
             if(!file || !amt) return alert("Thiếu tiền hoặc bill!");
-            let btn = document.getElementById('btnSubmit');
-            btn.disabled = true; btn.innerText = "ĐANG GỬI...";
-            let reader = new FileReader(); reader.readAsDataURL(file);
+
+            let reader = new FileReader();
+            reader.readAsDataURL(file);
             reader.onload = async () => {
-                await fetch(APP_URL, { method: 'POST', body: JSON.stringify({ nickname: myNick, amount: amt, proof: reader.result, avatar: myAva, action: type }) });
-                alert("Đã gửi báo danh! Chờ Captain duyệt nhé.");
+                await fetch(APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        nickname: myNick,
+                        amount: amt,
+                        avatar: myAva,
+                        proof: reader.result,
+                        action: "submit"
+                    })
+                });
+                alert("Đã gửi! Chờ duyệt.");
                 location.reload();
             };
         }
-
-        function movePawn(step) { if (step <= 0) return; let target = document.getElementById(`tile-${step}`); if(!target) return; let pawn = document.getElementById('player-pawn'); let mapRect = document.getElementById('game-map').getBoundingClientRect(); let rect = target.getBoundingClientRect(); pawn.style.left = `${rect.left - mapRect.left + (rect.width/2) - 27}px`; pawn.style.top = `${rect.top - mapRect.top + (rect.height/2) - 30}px`; for(let i=1; i<=60; i++) document.getElementById(`tile-${i}`).classList.toggle('active', i <= step); }
-        function toggleMusic() { let bgm = document.getElementById('bgm'); if (bgm.paused) { bgm.play(); } else { bgm.pause(); } }
     </script>
 </body>
 </html>
