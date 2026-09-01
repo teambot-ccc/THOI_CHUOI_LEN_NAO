@@ -218,10 +218,14 @@
                 const grid = document.getElementById('farm-grid');
                 grid.innerHTML = '';
                 data.sort((a,b) => b.streak - a.streak).slice(0, 8).forEach(u => {
-                    grid.innerHTML += `<div class="bg-white/90 border-2 border-black p-2 rounded-xl flex items-center gap-2 shadow-[2px_2px_0_#000]">
-                        <img src="${u.avatar}" class="w-8 h-8 rounded-full border-2 border-black object-cover bg-white">
-                        <p class="text-[9px] font-black truncate">${u.nickname}</p>
-                    </div>`;
+                    grid.innerHTML += `
+                        <div class="bg-white/90 border-2 border-black p-2 rounded-xl flex items-center gap-2 shadow-[2px_2px_0_#000]">
+                            <img src="${u.avatar}" class="w-8 h-8 rounded-full border-2 border-black object-cover bg-white">
+                            <div class="overflow-hidden">
+                                <p class="text-[9px] font-black truncate">${u.nickname}</p>
+                                <p class="text-[10px] text-red-500 font-bold">${u.streak} 🔥</p>
+                            </div>
+                        </div>`;
                 });
 
                 const me = data.find(u => u.nickname.toUpperCase() === myNick);
@@ -354,3 +358,6 @@ async function sendToServer(proof, amount, actionType) {
         btn.innerText = actionType === 'submit' ? "GỬI BÁO DANH 🔥" : "Khôi phục ngay 🆘";
     }
 }
+</script>
+</body>
+</html>
