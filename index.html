@@ -14,6 +14,7 @@
         .comic-border { border: 5px solid #000; box-shadow: 8px 8px 0px #000; border-radius: 30px; background: white; }
         .btn-comic { background: #ef4444; color: white; border: 3px solid #000; font-family: 'Bangers'; padding: 12px 20px; box-shadow: 0 5px 0 #000; border-radius: 20px; transition: 0.2s; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-comic:active { transform: translateY(4px); box-shadow: 0 1px 0 #000; }
+        .btn-comic:disabled { background: #94a3b8; cursor: not-allowed; }
         
         /* Hiệu ứng Khóa màn hình xám */
         .broken-mode { filter: grayscale(1); pointer-events: none; opacity: 0.6; }
@@ -34,8 +35,6 @@
         }
 
         .farm-bg { background-image: url('nenuutu.jpg'); background-size: cover; border: 6px solid #4d2c19; min-height: 450px; position: relative; border-radius: 20px; }
-        
-        /* Badge Styles */
         .badge-item { width: 40px; height: 40px; border-radius: 50%; border: 2px dashed #999; display: flex; align-items: center; justify-content: center; filter: grayscale(1); font-size: 18px; transition: 0.5s; background: #f1f5f9; }
         .badge-item.unlocked { border: 3px solid #000; background: #fff; filter: grayscale(0); box-shadow: 2px 2px 0 #000; transform: scale(1.1); }
 
@@ -63,11 +62,11 @@
     <div id="login-screen" class="fixed inset-0 z-[2000] bg-sky-500 flex items-center justify-center p-4">
         <div class="comic-border p-8 max-w-md w-full text-center space-y-6">
             <h1 class="text-4xl text-blue-700" style="font-family: 'Bangers'">THỔI CHUỖI LÊN NÀO</h1>
-               <p class="font-bold italic text-sm text-gray-700">Chọn Avatar duy nhất cho suốt hành trình!</p>
+            <p class="font-bold italic text-sm text-gray-700">Chọn Avatar duy nhất cho suốt hành trình!</p>
             <div class="grid grid-cols-3 gap-3">
                 <div class="ava-box selected" onclick="pickAva(this, 'avatar1.jpg')">
                     <img src="avatar1.jpg" class="w-full h-16 object-contain mx-auto">
-                    <p class="text-[10px] font-bold mt-1">Cừu Non </p>
+                    <p class="text-[10px] font-bold mt-1">Cừu Non</p>
                 </div>
                 <div class="ava-box" onclick="pickAva(this, 'avatar2.jpg')">
                     <img src="avatar2.jpg" class="w-full h-16 object-contain mx-auto">
@@ -85,18 +84,14 @@
 
     <!-- UI CHÍNH -->
     <div id="main-ui" class="hidden max-w-6xl mx-auto p-4 space-y-6">
-        <header id="header-section" class="flex flex-wrap justify-between items-center bg-white border-4 border-black p-4 rounded-3xl">
+        <header class="flex flex-wrap justify-between items-center bg-white border-4 border-black p-4 rounded-3xl">
             <div class="flex items-center gap-4">
                 <img id="user-ava-header" src="" class="w-16 h-16 rounded-full border-4 border-black bg-white object-cover">
                 <div>
                     <p id="user-nick-header" class="text-2xl font-black text-blue-600 uppercase italic"></p>
                     <div class="flex gap-1 mt-1" id="badge-container">
-                        <div class="badge-item" id="b10" title="Mốc 10">🥉</div>
-                        <div class="badge-item" id="b20" title="Mốc 20">🥈</div>
-                        <div class="badge-item" id="b30" title="Mốc 30">🥇</div>
-                        <div class="badge-item" id="b40" title="Mốc 40">🎖️</div>
-                        <div class="badge-item" id="b50" title="Mốc 50">🚀</div>
-                        <div class="badge-item" id="b60" title="Mốc 60">👑</div>
+                        <div class="badge-item" id="b10">🥉</div><div class="badge-item" id="b20">🥈</div><div class="badge-item" id="b30">🥇</div>
+                        <div class="badge-item" id="b40">🎖️</div><div class="badge-item" id="b50">🚀</div><div class="badge-item" id="b60">👑</div>
                     </div>
                 </div>
             </div>
@@ -124,12 +119,20 @@
 
                 <!-- GỬI BÁO DANH -->
                 <div id="action-box" class="comic-border p-6 bg-yellow-50">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
-                        <div class="space-y-2">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-3">
                             <label class="font-black text-xs">SỐ TIỀN DNT HÔM NAY:</label>
-                            <input type="number" id="amt" placeholder="Ví dụ: 11.603" class="w-full border-4 border-black p-3 rounded-xl font-bold bg-white">
+                            <input type="number" id="amt" placeholder="Ví dụ: 11603" class="w-full border-4 border-black p-3 rounded-xl font-bold bg-white outline-none">
+                            
+                            <!-- Tải Bill -->
+                            <input type="file" id="bill" class="hidden" accept="image/*" onchange="updateFileName(this)">
+                            <button type="button" onclick="document.getElementById('bill').click()" id="bill-btn" class="w-full border-3 border-dashed border-black p-3 rounded-xl font-black bg-white text-xs text-gray-700 hover:bg-gray-50 flex items-center justify-center gap-2">
+                                <i class="fas fa-cloud-arrow-up text-base"></i> <span id="bill-text">TẢI BILL MINH CHỨNG</span>
+                            </button>
                         </div>
-                        <button id="btnSubmit" onclick="doAction('submit')" class="btn-comic h-[58px] text-xl">GỬI BÁO DANH 🔥</button>
+                        <div class="flex items-end">
+                            <button id="btnSubmit" onclick="doAction('submit')" class="btn-comic w-full h-[58px] text-xl">GỬI BÁO DANH 🔥</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -169,9 +172,21 @@
             }
         }
 
+        function updateFileName(input) {
+            const txt = document.getElementById('bill-text');
+            const btn = document.getElementById('bill-btn');
+            if (input.files && input.files[0]) {
+                txt.innerText = "ĐÃ CHỌN: " + input.files[0].name;
+                btn.classList.add('bg-green-50', 'border-green-600');
+            } else {
+                txt.innerText = "TẢI BILL MINH CHỨNG";
+                btn.classList.remove('bg-green-50', 'border-green-600');
+            }
+        }
+
         function startGame() {
             myNick = document.getElementById('nick').value.trim().toUpperCase();
-            if(!myNick) return alert("Nhập tên thuyền viên!");
+            if(!myNick) return alert("Vui lòng nhập tên thuyền viên!");
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('main-ui').classList.remove('hidden');
             document.getElementById('user-nick-header').innerText = myNick;
@@ -250,24 +265,13 @@
             for(let i=1; i<=60; i++) document.getElementById(`tile-${i}`).classList.toggle('active', i <= step);
         }
 
-        // LOGIC HUY HIỆU & CHÚC MỪNG
         function checkMilestones(streak) {
-            const levels = {
-                10: { icon: "🥉", text: "Bạn đã mở khóa chuỗi 10!" },
-                20: { icon: "🥈", text: "Bạn đã mở khóa chuỗi 20!" },
-                30: { icon: "🥇", text: "Bạn đã mở khóa chuỗi 30!" },
-                40: { icon: "🎖️", text: "Bạn đã mở khóa chuỗi 40!" },
-                50: { icon: "🚀", text: "Bạn đã mở khóa chuỗi 50!" },
-                60: { icon: "👑", text: "Bạn đã mở khóa chuỗi 60!" }
-            };
-
+            const levels = { 10: "🥉", 20: "🥈", 30: "🥇", 40: "🎖️", 50: "🚀", 60: "👑" };
             Object.keys(levels).forEach(m => {
                 if(streak >= m) {
                     document.getElementById(`b${m}`).classList.add('unlocked');
-                    
-                    // Nếu mốc này chưa từng được chúc mừng trong máy này
                     if(!milestonesAchieved.includes(m)) {
-                        showCongrats(levels[m].icon, `Chúc mừng thuyền viên ${myNick}! <br>${levels[m].text}`);
+                        showCongrats(levels[m], `Chúc mừng thuyền viên ${myNick}! <br> Bạn đã mở khóa chuỗi ${m}!`);
                         milestonesAchieved.push(m);
                         localStorage.setItem('achievements', JSON.stringify(milestonesAchieved));
                     }
@@ -277,48 +281,67 @@
 
         function showCongrats(icon, text) {
             const modal = document.getElementById('congrats-modal');
-            const content = modal.querySelector('.congrats-content');
             document.getElementById('congrats-badge-icon').innerText = icon;
             document.getElementById('congrats-text').innerHTML = text;
-            
             modal.style.display = 'flex';
             document.getElementById('sfx-win').play();
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-            
-            gsap.to(content, { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.7)" });
+            gsap.to(".congrats-content", { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.7)" });
         }
 
         function closeCongrats() {
-            const modal = document.getElementById('congrats-modal');
-            const content = modal.querySelector('.congrats-content');
-            gsap.to(content, { scale: 0.5, opacity: 0, duration: 0.3, onComplete: () => {
-                modal.style.display = 'none';
+            gsap.to(".congrats-content", { scale: 0.5, opacity: 0, duration: 0.3, onComplete: () => {
+                document.getElementById('congrats-modal').style.display = 'none';
             }});
         }
 
         async function doAction(type) {
             const amt = document.getElementById('amt').value;
-            if(type === 'submit' && !amt) return alert("Nhập số tiền đã bạn ơi!");
+            const billFile = document.getElementById('bill').files[0];
+
+            if(type === 'submit' && (!amt || !billFile)) {
+                return alert("Vui lòng nhập số tiền và tải ảnh bill minh chứng!");
+            }
 
             const btn = type === 'submit' ? document.getElementById('btnSubmit') : document.getElementById('btnRestore');
             const oldTxt = btn.innerText;
             btn.disabled = true; btn.innerText = "ĐANG XỬ LÝ...";
 
-            try {
-                await fetch(APP_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        nickname: myNick,
-                        amount: amt || 0,
-                        avatar: myAva,
-                        action: type
-                    })
-                });
-                alert(type === 'submit' ? "Báo danh thành công!" : "Đã mở khóa! Màn hình đã sáng lại rồi.");
-                document.getElementById('amt').value = '';
-                await sync();
-            } catch(e) { alert("Lỗi kết nối!"); }
-            btn.disabled = false; btn.innerText = oldTxt;
+            // Hàm gửi dữ liệu lên Apps Script
+            const sendData = async (base64Proof = "") => {
+                try {
+                    const response = await fetch(APP_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            nickname: myNick,
+                            amount: amt || 0,
+                            proof: base64Proof || (type === 'restore' ? "Khôi phục chuỗi" : ""),
+                            avatar: myAva,
+                            action: type
+                        })
+                    });
+                    const res = await response.json();
+                    if(res.status === "success") {
+                        alert(type === 'submit' ? "Báo danh thành công!" : "Đã khôi phục chuỗi! Hãy báo danh ngay.");
+                        if(type === 'submit') {
+                            document.getElementById('amt').value = '';
+                            document.getElementById('bill').value = '';
+                            updateFileName({files: []});
+                        }
+                        await sync();
+                    } else { alert("Lỗi từ máy chủ: " + res.msg); }
+                } catch(e) { alert("Lỗi kết nối máy chủ!"); }
+                finally { btn.disabled = false; btn.innerText = oldTxt; }
+            };
+
+            // Nếu là báo danh thì đọc file bill thành Base64
+            if (type === 'submit' && billFile) {
+                const reader = new FileReader();
+                reader.readAsDataURL(billFile);
+                reader.onload = () => sendData(reader.result);
+            } else {
+                sendData(); // Restore không cần đọc bill
+            }
         }
     </script>
 </body>
