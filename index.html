@@ -295,56 +295,62 @@
             }});
         }
 
-        async function doAction(type) {
-        const amt = document.getElementById('amt').value;
-        const billFile = document.getElementById('bill').files[0];
+       async function doAction(type) {
+    const amt = document.getElementById('amt').value;
+    const billFile = document.getElementById('bill').files[0];
 
-        // Nếu báo danh thì bắt buộc có bill và tiền
-        if(type === 'submit' && (!amt || !billFile)) {
-            return alert("Vui lòng nhập số tiền và tải ảnh bill để Captain duyệt nhé!");
-        }
-
-        const btn = type === 'submit' ? document.getElementById('btnSubmit') : document.getElementById('btnRestore');
-        const oldTxt = btn.innerText;
-        btn.disabled = true; 
-        btn.innerText = "ĐANG XỬ LÝ...";
-
-        const sendData = async (base64Proof = "") => {
-            try {
-                const response = await fetch(APP_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        nickname: myNick,
-                        amount: amt || 0,
-                        proof: base64Proof,
-                        avatar: myAva,
-                        action: type
-                    })
-                });
-                const res = await response.json();
-                if(res.status === "success") {
-                    alert(type === 'submit' ? "Gửi báo danh thành công! Đã cập nhật minh chứng mới." : "Khôi phục thành công!");
-                    document.getElementById('amt').value = '';
-                    document.getElementById('bill').value = '';
-                    updateFileName({files: []});
-                    await sync(); // Cập nhật lại giao diện
-                } else {
-                    alert("Lỗi máy chủ: " + res.msg);
-                }
-            } catch(e) {
-                alert("Lỗi kết nối! Hãy kiểm tra mạng.");
-            } finally {
-                btn.disabled = false;
-                btn.innerText = oldTxt;
-            }
-        };
-
-        if (billFile) {
-            const reader = new FileReader();
-            reader.readAsDataURL(billFile);
-            reader.onload = () => sendData(reader.result);
-        } else {
-            sendData(""); // Trường hợp Restore
-        }
+    if(type === 'submit' && (!amt || !billFile)) {
+        return alert("Vui lòng nhập tiền và chọn ảnh bill!");
     }
-</script>
+
+    const btn = type === 'submit' ? document.getElementById('btnSubmit') : document.getElementById('btnRestore');
+    btn.disabled = true; btn.innerText = "ĐANG XỬ LÝ...";
+
+    if (type === 'submit') {
+        // NÉN ẢNH TRƯỚC KHI GỬI
+        const reader = new FileReader();
+        reader.readAsDataURL(billFile);
+        reader.onload = function (event) {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = function () {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 400; // Giới hạn chiều rộng ảnh để nhẹ
+                const scaleSize = MAX_WIDTH / img.width;
+                canvas.width = MAX_WIDTH;
+                canvas.height = img.height * scaleSize;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7); // Nén chất lượng 70%
+                
+                sendToServer(compressedBase64, amt, type);
+            };
+        };
+    } else {
+        sendToServer("", 0, type); // Restore
+    }
+}
+
+async function sendToServer(proof, amount, actionType) {
+    try {
+        const response = await fetch(APP_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                nickname: myNick,
+                amount: amount,
+                proof: proof,
+                avatar: myAva,
+                action: actionType
+            })
+        });
+        alert("Thành công!");
+        await sync();
+    } catch(e) {
+        alert("Lỗi máy chủ!");
+    } finally {
+        const btn = actionType === 'submit' ? document.getElementById('btnSubmit') : document.getElementById('btnRestore');
+        btn.disabled = false;
+        btn.innerText = actionType === 'submit' ? "GỬI BÁO DANH 🔥" : "Khôi phục ngay 🆘";
+    }
+}
