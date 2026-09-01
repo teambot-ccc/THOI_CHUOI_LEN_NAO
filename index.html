@@ -201,6 +201,7 @@
         function initMap() {
             const map = document.getElementById('game-map');
             const ms = [10, 20, 30, 40, 50, 60];
+            map.innerHTML = '<img id="player-pawn" src="' + myAva + '" alt="pawn">'; // Reset map
             for (let i = 1; i <= 60; i++) {
                 const tile = document.createElement('div');
                 tile.id = `tile-${i}`;
@@ -210,16 +211,14 @@
             }
         }
 
-      async function sync() {
+        async function sync() {
             try {
                 const res = await fetch(APP_URL);
                 const data = await res.json();
                 
-                // CẬP NHẬT BẢNG ƯU TÚ (Leaderboard)
+                // CẬP NHẬT BẢNG ƯU TÚ
                 const grid = document.getElementById('farm-grid');
                 grid.innerHTML = '';
-                
-                // Sắp xếp theo chuỗi cao nhất và lấy 8 người đầu tiên
                 data.sort((a,b) => b.streak - a.streak).slice(0, 8).forEach(u => {
                     grid.innerHTML += `
                         <div class="bg-white/90 border-2 border-black p-2 rounded-xl flex items-center gap-2 shadow-[2px_2px_0_#000]">
@@ -231,29 +230,64 @@
                         </div>`;
                 });
 
-                // TÌM THÔNG TIN CỦA BẢN THÂN
+                // TÌM VÀ CẬP NHẬT THÔNG TIN BẢN THÂN
                 const me = data.find(u => u.nickname.toUpperCase() === myNick);
                 if(me) updateUI(me);
             } catch(e) { console.error("Lỗi đồng bộ dữ liệu"); }
+        }
+
+        // HÀM QUAN TRỌNG ĐỂ CẬP NHẬT GIAO DIỆN CHÍNH
+        function updateUI(me) {
+            const streak = parseInt(me.streak);
+            document.getElementById('user-streak').innerText = `${streak} DAYS 🔥`;
+            
+            // KIỂM TRA ĐỨT CHUỖI (Nếu isBroken là true từ server)
+            if(me.isBroken) {
+                document.getElementById('map-container').classList.add('broken-mode');
+                document.getElementById('action-box').classList.add('broken-mode');
+                document.getElementById('alert-broken').classList.remove('hidden'); // HIỆN NÚT KHÔI PHỤC
+            } else {
+                document.getElementById('map-container').classList.remove('broken-mode');
+                document.getElementById('action-box').classList.remove('broken-mode');
+                document.getElementById('alert-broken').classList.add('hidden'); // ẨN NÚT KHÔI PHỤC
+                
+                // Đồng bộ Avatar từ server (nếu có)
+                if(me.avatar) {
+                    myAva = me.avatar;
+                    document.getElementById('user-ava-header').src = myAva;
+                    document.getElementById('player-pawn').src = myAva;
+                }
+                
+                movePawn(streak);
+                checkMilestones(streak);
+            }
         }
 
         function movePawn(step) {
             if (step <= 0) return;
             const target = document.getElementById(`tile-${Math.min(step, 60)}`);
             const pawn = document.getElementById('player-pawn');
+            if (!target || !pawn) return;
+
             const mapRect = document.getElementById('game-map').getBoundingClientRect();
             const rect = target.getBoundingClientRect();
             
             pawn.style.left = `${rect.left - mapRect.left + (rect.width/2) - 27}px`;
             pawn.style.top = `${rect.top - mapRect.top + (rect.height/2) - 27}px`;
-            for(let i=1; i<=60; i++) document.getElementById(`tile-${i}`).classList.toggle('active', i <= step);
+            
+            // Tô màu các ô đã đi qua
+            for(let i=1; i<=60; i++) {
+                const t = document.getElementById(`tile-${i}`);
+                if(t) t.classList.toggle('active', i <= step);
+            }
         }
 
         function checkMilestones(streak) {
             const levels = { 10: "🥉", 20: "🥈", 30: "🥇", 40: "🎖️", 50: "🚀", 60: "👑" };
             Object.keys(levels).forEach(m => {
+                const badge = document.getElementById(`b${m}`);
                 if(streak >= m) {
-                    document.getElementById(`b${m}`).classList.add('unlocked');
+                    if(badge) badge.classList.add('unlocked');
                     if(!milestonesAchieved.includes(m)) {
                         showCongrats(levels[m], `Chúc mừng thuyền viên ${myNick}! <br> Bạn đã mở khóa chuỗi ${m}!`);
                         milestonesAchieved.push(m);
@@ -279,65 +313,62 @@
             }});
         }
 
-       async function doAction(type) {
-    const amt = document.getElementById('amt').value;
-    const billFile = document.getElementById('bill').files[0];
+        async function doAction(type) {
+            const amt = document.getElementById('amt').value;
+            const billFile = document.getElementById('bill').files[0];
 
-    if(type === 'submit' && (!amt || !billFile)) {
-        return alert("Vui lòng nhập tiền và chọn ảnh bill!");
-    }
+            if(type === 'submit' && (!amt || !billFile)) {
+                return alert("Vui lòng nhập tiền và chọn ảnh bill!");
+            }
 
-    const btn = type === 'submit' ? document.getElementById('btnSubmit') : document.getElementById('btnRestore');
-    btn.disabled = true; btn.innerText = "ĐANG XỬ LÝ...";
+            const btn = type === 'submit' ? document.getElementById('btnSubmit') : document.getElementById('btnRestore');
+            const oldTxt = btn.innerText;
+            btn.disabled = true; btn.innerText = "ĐANG XỬ LÝ...";
 
-    if (type === 'submit') {
-        // NÉN ẢNH TRƯỚC KHI GỬI
-        const reader = new FileReader();
-        reader.readAsDataURL(billFile);
-        reader.onload = function (event) {
-            const img = new Image();
-            img.src = event.target.result;
-            img.onload = function () {
-                const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 400; // Giới hạn chiều rộng ảnh để nhẹ
-                const scaleSize = MAX_WIDTH / img.width;
-                canvas.width = MAX_WIDTH;
-                canvas.height = img.height * scaleSize;
+            if (type === 'submit') {
+                const reader = new FileReader();
+                reader.readAsDataURL(billFile);
+                reader.onload = function (event) {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = function () {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 400;
+                        const scaleSize = MAX_WIDTH / img.width;
+                        canvas.width = MAX_WIDTH;
+                        canvas.height = img.height * scaleSize;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                        sendToServer(compressedBase64, amt, type, oldTxt, btn);
+                    };
+                };
+            } else {
+                sendToServer("", 0, type, oldTxt, btn);
+            }
+        }
 
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7); // Nén chất lượng 70%
-                
-                sendToServer(compressedBase64, amt, type);
-            };
-        };
-    } else {
-        sendToServer("", 0, type); // Restore
-    }
-}
-
-async function sendToServer(proof, amount, actionType) {
-    try {
-        const response = await fetch(APP_URL, {
-            method: 'POST',
-            body: JSON.stringify({
-                nickname: myNick,
-                amount: amount,
-                proof: proof,
-                avatar: myAva,
-                action: actionType
-            })
-        });
-        alert("Thành công!");
-        await sync();
-    } catch(e) {
-        alert("Lỗi máy chủ!");
-    } finally {
-        const btn = actionType === 'submit' ? document.getElementById('btnSubmit') : document.getElementById('btnRestore');
-        btn.disabled = false;
-        btn.innerText = actionType === 'submit' ? "GỬI BÁO DANH 🔥" : "Khôi phục ngay 🆘";
-    }
-}
-</script>
+        async function sendToServer(proof, amount, actionType, oldTxt, btn) {
+            try {
+                const response = await fetch(APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        nickname: myNick,
+                        amount: amount,
+                        proof: proof,
+                        avatar: myAva,
+                        action: actionType
+                    })
+                });
+                alert("Thành công!");
+                await sync();
+            } catch(e) {
+                alert("Lỗi máy chủ!");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = oldTxt;
+            }
+        }
+    </script>
 </body>
 </html>
