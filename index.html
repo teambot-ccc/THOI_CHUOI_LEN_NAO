@@ -15,10 +15,11 @@
         .btn-comic { background: #ef4444; color: white; border: 3px solid #000; font-family: 'Bangers'; padding: 12px 20px; box-shadow: 0 5px 0 #000; border-radius: 20px; transition: 0.2s; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-comic:active { transform: translateY(4px); box-shadow: 0 1px 0 #000; }
         
-        .broken-mode { filter: grayscale(1); pointer-events: none; opacity: 0.6; }
+        /* HIỆU ỨNG ĐÓNG BĂNG */
+        .broken-mode { filter: grayscale(1); pointer-events: none; opacity: 0.6; cursor: not-allowed; }
+        
         .ava-box { border: 4px solid transparent; border-radius: 20px; cursor: pointer; transition: 0.3s; padding: 5px; background: #f8fafc; text-align: center; }
         .ava-box.selected { border-color: #3b82f6; background: #dbeafe; transform: scale(1.05); }
-
         .tab-btn { padding: 10px; font-family: 'Bangers'; font-size: 1.2rem; cursor: pointer; border-bottom: 4px solid transparent; transition: 0.3s; }
         .tab-btn.active { border-color: #ef4444; color: #ef4444; }
 
@@ -50,25 +51,25 @@
     <audio id="sfx-win" src="nhacnenmodau.mp3"></audio>
     <audio id="bgm" loop src="nhacnenmodau.mp3"></audio>
 
-    <!-- MENU GỐC: KHÔNG ĐỔI -->
+    <!-- MENU GỐC: 7 LINK -->
     <nav class="max-w-7xl mx-auto p-4 mt-2">
         <div class="comic-border bg-white flex flex-wrap items-center justify-between px-6 py-3 gap-4">
             <a href="/" class="text-xl font-black italic text-blue-700" style="font-family: 'Bangers'">
                 <i class="fas fa-rocket mr-2"></i>NHỮNG CON BOT CỦA CAPTAIN BOY
             </a>
             <div class="flex flex-wrap gap-4 text-[11px] font-black uppercase italic">
-                <a href="/" class="hover:text-blue-500 transition"><i class="fas fa-home mr-1"></i> TRANG CHỦ</a>
-                <a href="/CAPTAIN-BOY/tieu-su-2/" class="hover:text-blue-500 transition"><i class="fas fa-star mr-1"></i> CAPTAIN BOY</a>
-                <a href="/thoi-chuoi" class="text-orange-600 border-b-2 border-orange-600"><i class="fas fa-link mr-1"></i> THỔI CHUỖI CÙNG NHAU</a>
-                <a href="/social-chien-tich/index.html" class="hover:text-blue-500 transition"><i class="fas fa-award mr-1"></i> CHIẾN TÍCH</a>
-                <a href="/stream-youtube/" class="hover:text-blue-500 transition"><i class="fas fa-video mr-1"></i> STREAM</a>
-                <a href="/dinh-nghia-tam-quan-trong-cua-social/" class="hover:text-blue-500 transition"><i class="fas fa-share-alt mr-1"></i> SOCIAL</a>
-                <a href="/gioi-thieu/" class="hover:text-blue-500 transition"><i class="fas fa-address-card mr-1"></i> ABOUT ME</a>
+                <a href="/" class="hover:text-blue-500 transition"><i class="fas fa-home"></i> TRANG CHỦ</a>
+                <a href="/CAPTAIN-BOY/tieu-su-2/" class="hover:text-blue-500"><i class="fas fa-star"></i> CAPTAIN BOY</a>
+                <a href="/thoi-chuoi" class="text-orange-600 border-b-2 border-orange-600"><i class="fas fa-link"></i> THỔI CHUỖI CÙNG NHAU</a>
+                <a href="/social-chien-tich/index.html" class="hover:text-blue-500"><i class="fas fa-award"></i> CHIẾN TÍCH</a>
+                <a href="/stream-youtube/" class="hover:text-blue-500"><i class="fas fa-video"></i> STREAM</a>
+                <a href="/dinh-nghia-tam-quan-trong-cua-social/" class="hover:text-blue-500"><i class="fas fa-share-alt"></i> SOCIAL</a>
+                <a href="/gioi-thieu/" class="hover:text-blue-500"><i class="fas fa-address-card"></i> ABOUT ME</a>
             </div>
         </div>
     </nav>
 
-    <!-- UI CHÍNH: KHÔNG ĐỔI -->
+    <!-- UI CHÍNH -->
     <div id="main-ui" class="hidden max-w-7xl mx-auto p-4 space-y-6">
         <header class="flex flex-wrap justify-between items-center bg-white border-4 border-black p-4 rounded-3xl">
             <div class="flex items-center gap-4">
@@ -86,18 +87,22 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-24">
             <div class="lg:col-span-8 space-y-6">
+                <!-- THÔNG BÁO ĐÓNG BĂNG GỐC -->
                 <div id="alert-broken" class="hidden comic-border bg-slate-800 text-white p-8 text-center space-y-4">
                     <h2 class="text-3xl font-black text-cyan-400" style="font-family: 'Bangers'">BẠN ĐÃ BỊ ĐÓNG BĂNG! ❄️</h2>
-                    <button id="btnRestore" onclick="doAction('restore')" class="btn-comic bg-blue-500 mx-auto">KHÔI PHỤC NGAY (PHÁ BĂNG) 🆘</button>
+                    <p class="font-bold italic text-sm">Bạn đã lỡ hẹn ngày báo danh. Phá băng để tiếp tục hành trình nhé!</p>
+                    <button id="btnRestore" onclick="doAction('restore')" class="btn-comic bg-blue-500 mx-auto border-white">KHÔI PHỤC NGAY (PHÁ BĂNG) 🆘</button>
                 </div>
+
                 <div id="map-container" class="comic-border bg-white relative overflow-hidden min-h-[350px]">
                     <div id="game-map"></div>
                 </div>
+
                 <div id="action-box" class="comic-border p-6 bg-yellow-50">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
                         <div class="space-y-3">
                             <label class="font-black text-xs">SỐ TIỀN DNT THỔI CHUỖI:</label>
-                            <input type="number" id="amt" placeholder="Ví dụ: 11.603" class="w-full border-4 border-black p-3 rounded-xl font-bold bg-white">
+                            <input type="number" id="amt" placeholder="Ví dụ: 11.603" class="w-full border-4 border-black p-3 rounded-xl font-bold bg-white outline-none">
                             <button type="button" onclick="document.getElementById('bill').click()" class="w-full border-2 border-dashed border-black p-3 rounded-xl font-black text-xs bg-white uppercase"><span id="bill-text">TẢI BILL MINH CHỨNG</span></button>
                             <input type="file" id="bill" class="hidden" onchange="updateFileName(this)">
                         </div>
@@ -107,6 +112,7 @@
             </div>
 
             <div class="lg:col-span-4">
+                <!-- ĐỒNG CỪU 3 CỘT GỐC -->
                 <div class="farm-bg comic-border">
                     <div class="p-3 bg-black/50 border-b-4 border-black sticky top-0 z-10 text-center text-white font-black uppercase italic" style="font-family: 'Bangers'">ĐỒNG CỪU ƯU TÚ 🐑</div>
                     <div id="farm-grid"></div>
@@ -115,22 +121,23 @@
         </div>
     </div>
 
-    <!-- MÀN HÌNH LOGIN/REGISTER: GỐC + 2 TAB -->
+    <!-- MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ -->
     <div id="login-screen" class="fixed inset-0 z-[2000] bg-sky-500 flex items-center justify-center p-4">
         <div class="comic-border p-8 max-w-md w-full text-center space-y-4">
             <h1 class="text-3xl text-blue-700" style="font-family: 'Bangers'">THỔI CHUỖI CÙNG NHAU</h1>
             
             <div class="flex justify-around border-b-2 border-black mb-4">
-                <div id="tab-reg" class="tab-btn active" onclick="switchTab('reg')">ĐĂNG KÝ</div>
+                <div id="tab-reg" class="tab-btn active" onclick="switchTab('reg')">ĐĂNG KÝ MỚI</div>
                 <div id="tab-login" class="tab-btn" onclick="switchTab('login')">ĐĂNG NHẬP</div>
             </div>
 
+            <!-- FORM ĐĂNG KÝ -->
             <div id="form-reg" class="space-y-4">
                 <div class="grid grid-cols-3 gap-2">
                     <div class="ava-box selected" onclick="pickAva(this, 'avatar1.jpg')"><img src="avatar1.jpg" class="h-10 mx-auto"><p class="text-[8px] font-bold">Cừu Non</p></div>
                     <div class="ava-box" onclick="pickAva(this, 'avatar2.jpg')"><img src="avatar2.jpg" class="h-10 mx-auto"><p class="text-[8px] font-bold">Cừu Cute</p></div>
-                    <div class="ava-box flex flex-col justify-center border-2 border-dashed border-gray-400" onclick="document.getElementById('uploadAva').click()">
-                        <div id="pre-view" class="text-[8px] font-bold">ẢNH RIÊNG</div>
+                    <div class="ava-box flex flex-col justify-center border-2 border-dashed border-gray-400 overflow-hidden" style="height: 60px;" onclick="document.getElementById('uploadAva').click()">
+                        <div id="pre-view" class="w-full h-full flex items-center justify-center"><div class="text-[8px] font-bold uppercase">ẢNH RIÊNG</div></div>
                         <input type="file" id="uploadAva" class="hidden" accept="image/*" onchange="handleUpload(this)">
                     </div>
                 </div>
@@ -139,15 +146,16 @@
                 <button onclick="handleAuth('register')" class="btn-comic w-full text-xl uppercase italic">BẮT ĐẦU THỔI</button>
             </div>
 
+            <!-- FORM ĐĂNG NHẬP -->
             <div id="form-login" class="hidden space-y-4">
-                <input type="text" id="login-nick" class="w-full border-4 border-black p-3 rounded-xl text-center font-black uppercase" placeholder="TÊN CỪU ĐÃ CÓ...">
+                <input type="text" id="login-nick" class="w-full border-4 border-black p-3 rounded-xl text-center font-black uppercase" placeholder="TÊN CỪU ĐÃ ĐĂNG KÝ...">
                 <input type="password" id="login-pass" class="w-full border-4 border-black p-3 rounded-xl text-center font-black" placeholder="NHẬP MẬT KHẨU...">
                 <button onclick="handleAuth('login')" class="btn-comic w-full text-xl uppercase italic">VÀO HÀNH TRÌNH</button>
             </div>
         </div>
     </div>
 
-    <!-- WIDGET & MODAL: GỐC -->
+    <!-- WIDGET CHUỖI NHÓM -->
     <div id="group-widget" class="group-status hidden">
         <div class="comic-border p-4 bg-orange-400 border-black shadow-[4px_4px_0px_#000]">
             <p class="text-[10px] font-black uppercase text-white mb-1 text-center">Chuỗi Nhóm 🔥</p>
@@ -161,31 +169,33 @@
         </div>
     </div>
 
+    <!-- MODAL HƯỚNG DẪN -->
     <div id="guide-modal" class="modal-overlay">
         <div class="modal-content scale-90 opacity-0 transition-all duration-500">
             <h2 class="text-2xl font-black text-blue-600 mb-4" style="font-family: 'Bangers'">🐑 LUẬT THỔI CHUỖI CÙNG NHAU</h2>
-            <div class="text-left space-y-3 text-sm font-bold text-gray-700 bg-blue-50 p-5 rounded-2xl border-2 border-black mb-6 italic">
-                <p>• Báo danh mỗi ngày 1 lần → <b>+1 Streak cá nhân</b>.</p>
-                <p>• 30 người cùng thổi trong 1 ngày → <b>+1 Chuỗi Nhóm</b>.</p>
-                <p>• Không báo danh 1 ngày → <b>Đóng băng</b>. Phá băng để tiếp tục hành trình.</p>
+            <div class="text-left space-y-3 text-sm font-bold text-gray-700 bg-blue-50 p-5 rounded-2xl border-2 border-black mb-6 italic leading-relaxed">
+                <p>• Mỗi ngày báo danh 1 lần → <b>+1 Streak cá nhân</b>.</p>
+                <p>• 30 cừu báo danh cùng ngày → <b>+1 Chuỗi Nhóm</b>.</p>
+                <p>• Không báo danh 1 ngày → <b>Đóng băng</b>.</p>
+                <p>• Phá băng bằng cách bấm KHÔI PHỤC (Streak không đổi).</p>
             </div>
-            <button onclick="enterMainGame()" class="btn-comic w-full text-2xl uppercase italic">ĐÃ HIỂU & BẮT ĐẦU 🔥</button>
+            <button onclick="enterMainGame()" class="btn-comic w-full text-2xl uppercase italic">ĐÃ HIỂU & VÀO GAME 🔥</button>
         </div>
     </div>
 
+    <!-- MODAL DANH SÁCH NGÀY -->
     <div id="today-modal" class="modal-overlay" onclick="closeTodayList()">
         <div class="modal-content max-w-lg" onclick="event.stopPropagation()">
-            <h2 class="text-2xl font-black text-orange-600 mb-4" style="font-family: 'Bangers'">CỪU ĐÃ THỔI HÔM NAY</h2>
+            <h2 class="text-2xl font-black text-orange-600 mb-4" style="font-family: 'Bangers'">CỪU ĐÃ THỔI CHUỖI HÔM NAY</h2>
             <div id="today-sheep-list" class="grid grid-cols-4 gap-3 max-h-[400px] overflow-y-auto"></div>
             <button onclick="closeTodayList()" class="btn-comic mt-6 mx-auto">ĐÓNG</button>
         </div>
     </div>
 
     <script>
-        const APP_URL = "https://script.google.com/macros/s/AKfycbyEuhu-wKJm4biDkU6oHAnQGzAMx7D4NXIAZedZ2aHKC4MQGXo5GGA-Bq3G-sIQGAG4vw/exec"; 
+        const APP_URL = "URL_APPS_SCRIPT_CUA_BAN_TAI_DAY"; 
         let myNick = "", myPass = "", myAva = "avatar1.jpg", allUsers = [];
 
-        // --- HÀM TAB ---
         function switchTab(type) {
             document.getElementById('form-reg').classList.toggle('hidden', type === 'login');
             document.getElementById('form-login').classList.toggle('hidden', type === 'reg');
@@ -193,16 +203,26 @@
             document.getElementById('tab-login').classList.toggle('active', type === 'login');
         }
 
-        // --- GIAO DIỆN GỐC ---
         function pickAva(el, url) { document.querySelectorAll('.ava-box').forEach(x => x.classList.remove('selected')); el.classList.add('selected'); myAva = url; }
-        function handleUpload(input) { if (input.files[0]) { const reader = new FileReader(); reader.onload = (e) => { myAva = e.target.result; document.getElementById('pre-view').innerText = "OK!"; }; reader.readAsDataURL(input.files[0]); } }
-        function updateFileName(input) { if (input.files[0]) document.getElementById('bill-text').innerText = "ĐÃ CHỌN BILL"; }
+        
+        function handleUpload(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    myAva = e.target.result;
+                    document.getElementById('pre-view').innerHTML = `<img src="${myAva}" class="w-full h-full object-cover rounded-lg">`;
+                    const parentBox = input.closest('.ava-box');
+                    document.querySelectorAll('.ava-box').forEach(x => x.classList.remove('selected'));
+                    parentBox.classList.add('selected');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
 
-        // --- AUTH LOGIC ---
         async function handleAuth(type) {
             myNick = document.getElementById(type === 'register' ? 'reg-nick' : 'login-nick').value.trim().toUpperCase();
             myPass = document.getElementById(type === 'register' ? 'reg-pass' : 'login-pass').value.trim();
-            if(!myNick || !myPass) return alert("Vui lòng nhập đầy đủ Tên và Mật khẩu!");
+            if(!myNick || !myPass) return alert("Vui lòng nhập Tên và Mật khẩu!");
 
             const btn = document.querySelector(type === 'register' ? '#form-reg button' : '#form-login button');
             btn.innerText = "XỬ LÝ..."; btn.disabled = true;
@@ -212,7 +232,7 @@
                     const res = await fetch(APP_URL);
                     const data = await res.json();
                     if(data.users.find(u => u.nickname.toUpperCase() === myNick)) {
-                        alert("Tên này đã được Cừu khác đăng ký!");
+                        alert("Tên này đã được đăng ký!");
                         btn.innerText = "BẮT ĐẦU THỔI"; btn.disabled = false;
                         return;
                     }
@@ -237,17 +257,12 @@
                         btn.innerText = "VÀO HÀNH TRÌNH"; btn.disabled = false;
                     }
                 }
-            } catch(e) { alert("Lỗi kết nối!"); btn.disabled = false; }
+            } catch(e) { alert("Lỗi mạng!"); btn.disabled = false; }
         }
 
         window.onload = () => {
-            const savedNick = localStorage.getItem('sheep_nick');
-            const savedPass = localStorage.getItem('sheep_pass');
-            if(savedNick && savedPass) {
-                document.getElementById('login-nick').value = savedNick;
-                document.getElementById('login-pass').value = savedPass;
-                switchTab('login');
-            }
+            const sn = localStorage.getItem('sheep_nick'), sp = localStorage.getItem('sheep_pass');
+            if(sn && sp) { document.getElementById('login-nick').value = sn; document.getElementById('login-pass').value = sp; switchTab('login'); }
         }
 
         function enterMainGame() {
@@ -284,9 +299,17 @@
                 if(me) {
                     document.getElementById('user-streak').innerText = `${me.streak} DAYS 🔥`;
                     movePawn(me.streak); checkMilestones(me.streak);
-                    document.getElementById('alert-broken').classList.toggle('hidden', !me.isBroken);
-                    document.getElementById('map-container').classList.toggle('broken-mode', me.isBroken);
-                    document.getElementById('action-box').classList.toggle('broken-mode', me.isBroken);
+                    
+                    // HIỂN THỊ TRẠNG THÁI ĐÓNG BĂNG
+                    if (me.isBroken) {
+                        document.getElementById('alert-broken').classList.remove('hidden');
+                        document.getElementById('map-container').classList.add('broken-mode');
+                        document.getElementById('action-box').classList.add('broken-mode');
+                    } else {
+                        document.getElementById('alert-broken').classList.add('hidden');
+                        document.getElementById('map-container').classList.remove('broken-mode');
+                        document.getElementById('action-box').classList.remove('broken-mode');
+                    }
                 }
             } catch(e) {}
         }
@@ -346,6 +369,7 @@
             document.getElementById('today-modal').style.display = 'flex';
         }
         function closeTodayList() { document.getElementById('today-modal').style.display = 'none'; }
+        function updateFileName(input) { if (input.files[0]) document.getElementById('bill-text').innerText = "ĐÃ CHỌN BILL"; }
     </script>
 </body>
 </html>
