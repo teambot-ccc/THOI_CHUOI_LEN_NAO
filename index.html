@@ -386,45 +386,21 @@
             }
             function end() { document.onmouseup=null; document.onmousemove=null; document.ontouchend=null; document.ontouchmove=null; }
         }
-      function openTodayList() {
+     function openTodayList() {
     const listDiv = document.getElementById('today-sheep-list');
     listDiv.innerHTML = '';
 
-    const now = new Date();
-    const d = String(now.getDate()).padStart(2, '0');
-    const m = String(now.getMonth() + 1).padStart(2, '0');
-    const y = now.getFullYear();
-
-    // Tạo ra 2 kiểu ngày phổ biến nhất
-    const formatVN = `${d}/${m}/${y}`;   // Kiểu 03/09/2026
-    const formatISO = `${y}-${m}-${d}`;  // Kiểu 2026-09-03
-
-    console.log("Đang tìm ngày:", formatVN, "hoặc", formatISO);
-
-    // Lọc danh sách (Bỏ qua điều kiện isReportedToday vì có thể backend chưa trả về)
-    const todaySheep = allUsers.filter(u => {
-        if (!u.lastUpdate) return false;
-        
-        // Chuyển dữ liệu ngày từ sheet về dạng chuỗi để kiểm tra
-        const dateStr = String(u.lastUpdate);
-        
-        // Chỉ cần trong chuỗi ngày của Sheep có chứa "03/09/2026" hoặc "2026-09-03" là nhận
-        return dateStr.includes(formatVN) || dateStr.includes(formatISO);
-    });
+    // Lọc những người mà Backend đã đánh dấu là isReportedToday = true
+    const todaySheep = allUsers.filter(u => u.isReportedToday === true);
 
     if (todaySheep.length === 0) {
-        listDiv.innerHTML = `
-            <div class="col-span-4 text-center py-4">
-                <p class="text-gray-400 italic">Chưa thấy ai thổi hôm nay...</p>
-                <p class="text-[10px] text-gray-300 mt-2">Ngày HT: ${formatVN}</p>
-            </div>`;
+        listDiv.innerHTML = '<p class="col-span-4 text-gray-400 italic py-4 text-center w-full">Chưa có ai thổi chuỗi hôm nay...</p>';
     } else {
         todaySheep.forEach(s => {
             listDiv.innerHTML += `
                 <div class="flex flex-col items-center bg-white p-2 rounded-xl border border-black/5 shadow-sm">
-                    <img src="${s.avatar || 'avatar1.jpg'}" class="w-12 h-12 rounded-full border-2 border-black object-cover">
-                    <p class="text-[8px] font-black uppercase mt-1 truncate w-full text-center">${s.nickname}</p>
-                    <span class="text-[7px] text-green-600 font-bold">V</span>
+                    <img src="${s.avatar}" class="w-12 h-12 rounded-full border-2 border-black object-cover">
+                    <p class="text-[8px] font-bold uppercase mt-1 truncate w-full text-center">${s.nickname}</p>
                 </div>`;
         });
     }
