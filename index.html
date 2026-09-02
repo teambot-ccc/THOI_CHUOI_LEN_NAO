@@ -20,8 +20,9 @@
         .ava-box.selected { border-color: #3b82f6; background: #dbeafe; transform: scale(1.05); }
 
         #game-map { display: grid; grid-template-columns: repeat(auto-fill, minmax(55px, 1fr)); gap: 10px; padding: 20px; position: relative; }
-        .map-tile { aspect-ratio: 1; border: 2px solid #000; border-radius: 12px; background: rgba(255,255,255,0.8); display: flex; align-items: center; justify-content: center; font-family: 'Bangers'; font-size: 1.2rem; color: #64748b; }
+        .map-tile { aspect-ratio: 1; border: 2px solid #000; border-radius: 12px; background: rgba(255,255,255,0.8); display: flex; align-items: center; justify-content: center; font-family: 'Bangers'; font-size: 1.2rem; }
         .map-tile.active { background: #fef08a; border-color: #f59e0b; color: #b45309; }
+        .map-tile.milestone { background: #fee2e2; border-color: #ef4444; color: #ef4444; }
         
         #player-pawn { 
             position: absolute; width: 55px; height: 55px; z-index: 100; 
@@ -29,28 +30,29 @@
             border: 3px solid #000; border-radius: 50%; background: white; object-fit: cover;
         }
 
-        /* Widget Chuỗi Nhóm */
-        .group-status { position: fixed; bottom: 20px; left: 20px; z-index: 1000; width: 250px; }
-        
-        /* Đồng cừu cuộn (Hiện tất cả) */
-        .farm-bg { background: #7c2d12; border: 6px solid #4d2c19; height: 550px; border-radius: 25px; overflow: hidden; display: flex; flex-direction: column; }
+        .farm-bg { background-image: url('nenuutu.jpg'); background-size: cover; border: 6px solid #4d2c19; height: 550px; border-radius: 20px; position: relative; display: flex; flex-direction: column; overflow: hidden; }
         #farm-grid { overflow-y: auto; padding: 15px; flex-grow: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        #farm-grid::-webkit-scrollbar { width: 6px; }
-        #farm-grid::-webkit-scrollbar-thumb { background: #4d2c19; border-radius: 10px; }
+        
+        .group-status { position: fixed; bottom: 20px; left: 20px; z-index: 1000; width: 250px; }
+        .badge-item { width: 40px; height: 40px; border-radius: 50%; border: 2px dashed #999; display: flex; align-items: center; justify-content: center; filter: grayscale(1); font-size: 18px; transition: 0.5s; background: #f1f5f9; }
+        .badge-item.unlocked { border: 3px solid #000; background: #fff; filter: grayscale(0); box-shadow: 2px 2px 0 #000; transform: scale(1.1); }
 
-        .badge-item { width: 35px; height: 35px; border-radius: 50%; border: 2px dashed #999; display: flex; align-items: center; justify-content: center; filter: grayscale(1); font-size: 16px; background: #f1f5f9; }
-        .badge-item.unlocked { border: 2px solid #000; background: #fff; filter: grayscale(0); box-shadow: 2px 2px 0 #000; transform: scale(1.1); }
+        #congrats-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 3000; align-items: center; justify-content: center; padding: 20px; }
+        .congrats-content { background: white; border: 6px solid #000; border-radius: 40px; padding: 40px; text-align: center; max-width: 400px; width: 100%; transform: scale(0.5); opacity: 0; }
     </style>
 </head>
 <body>
 
-    <!-- WIDGET CHUỖI NHÓM -->
+    <audio id="sfx-win" src="nhacnenmodau.mp3"></audio>
+    <audio id="bgm" loop src="nhacnenmodau.mp3"></audio>
+
+    <!-- UI CHUỖI NHÓM -->
     <div id="group-widget" class="group-status hidden">
-        <div class="comic-border p-4 bg-orange-400 border-black shadow-[5px_5px_0px_#000]">
-            <p class="text-[10px] font-black uppercase text-white mb-1 drop-shadow-md text-center">CHUỖI NHÓM HỆ CỪU 🔥</p>
+        <div class="comic-border p-4 bg-orange-400 border-black shadow-[4px_4px_0px_#000]">
+            <p class="text-[10px] font-black uppercase text-white mb-1 drop-shadow-md text-center">Chuỗi Nhóm Hệ Cừu 🔥</p>
             <div id="group-streak-val" class="text-4xl font-black text-white italic text-center mb-2" style="font-family: 'Bangers'">0 DAYS</div>
             <div class="bg-white/30 p-2 rounded-xl border-2 border-black text-center">
-                <p class="text-[9px] font-bold text-black mb-1 italic leading-tight">Đủ 30 cừu báo danh hôm nay sẽ giữ chuỗi nhóm!</p>
+                <p class="text-[9px] font-bold text-black mb-1 italic">Đủ 30 cừu báo danh để giữ chuỗi nhóm!</p>
                 <div class="w-full h-3 bg-gray-200 border border-black rounded-full overflow-hidden">
                     <div id="group-bar" class="h-full bg-green-500 transition-all duration-700" style="width: 0%"></div>
                 </div>
@@ -59,21 +61,25 @@
         </div>
     </div>
 
+    <!-- POP-UP CHÚC MỪNG -->
+    <div id="congrats-modal">
+        <div class="congrats-content">
+            <h2 class="text-5xl mb-4 text-yellow-500" style="font-family: 'Bangers'">TUYỆT VỜI!</h2>
+            <div id="congrats-badge-icon" class="text-7xl mb-4">🥉</div>
+            <p id="congrats-text" class="text-xl font-black uppercase mb-6 leading-tight"></p>
+            <button onclick="closeCongrats()" class="btn-comic w-full text-2xl">TIẾP TỤC HÀNH TRÌNH</button>
+        </div>
+    </div>
+
     <!-- MÀN HÌNH ĐĂNG NHẬP -->
     <div id="login-screen" class="fixed inset-0 z-[2000] bg-sky-500 flex items-center justify-center p-4">
         <div class="comic-border p-8 max-w-md w-full text-center space-y-6">
             <h1 class="text-4xl text-blue-700" style="font-family: 'Bangers'">THỔI CHUỖI LÊN NÀO</h1>
             <div class="grid grid-cols-3 gap-3">
-                <div class="ava-box selected" onclick="pickAva(this, 'avatar1.jpg')">
-                    <img src="avatar1.jpg" class="w-full h-14 object-contain mx-auto">
-                    <p class="text-[9px] font-bold mt-1">Cừu Non</p>
-                </div>
-                <div class="ava-box" onclick="pickAva(this, 'avatar2.jpg')">
-                    <img src="avatar2.jpg" class="w-full h-14 object-contain mx-auto">
-                    <p class="text-[9px] font-bold mt-1">Cừu Cute</p>
-                </div>
+                <div class="ava-box selected" onclick="pickAva(this, 'avatar1.jpg')"><img src="avatar1.jpg" class="w-full h-14 object-contain mx-auto"><p class="text-[9px] font-bold mt-1">Cừu Non</p></div>
+                <div class="ava-box" onclick="pickAva(this, 'avatar2.jpg')"><img src="avatar2.jpg" class="w-full h-14 object-contain mx-auto"><p class="text-[9px] font-bold mt-1">Cừu Cute</p></div>
                 <div class="ava-box flex flex-col items-center justify-center border-2 border-dashed border-gray-400" onclick="document.getElementById('uploadAva').click()">
-                    <div id="pre-view" class="text-xs font-bold text-gray-500 py-1"><i class="fas fa-upload text-lg"></i><br>Ảnh riêng</div>
+                    <div id="pre-view" class="text-xs font-bold text-gray-500"><i class="fas fa-upload text-lg"></i><br>Ảnh riêng</div>
                     <input type="file" id="uploadAva" class="hidden" accept="image/*" onchange="handleUpload(this)">
                 </div>
             </div>
@@ -97,7 +103,7 @@
             </div>
             <div class="text-right">
                 <p id="user-streak" class="text-4xl font-black text-red-500 italic" style="font-family: 'Bangers'">0 DAYS 🔥</p>
-                <p class="text-[10px] font-bold text-gray-400 uppercase leading-none">Chuỗi cá nhân của bạn</p>
+                <p class="text-[10px] font-bold text-gray-400 uppercase leading-none italic">Chuỗi cá nhân</p>
             </div>
         </header>
 
@@ -107,30 +113,25 @@
                     <h2 class="text-3xl font-black" style="font-family: 'Bangers'">BẠN ĐÃ BỊ ĐÓNG BĂNG!</h2>
                     <button onclick="doAction('restore')" class="btn-comic bg-blue-500 mx-auto">KHÔI PHỤC CHUỖI 🆘</button>
                 </div>
-
                 <div id="map-container" class="comic-border bg-white relative overflow-hidden min-h-[350px]">
                     <div id="game-map"></div>
                 </div>
-
                 <div id="action-box" class="comic-border p-6 bg-yellow-50">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-center items-end">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
                         <div class="space-y-3">
                             <input type="number" id="amt" placeholder="SỐ TIỀN DNT HÔM NAY..." class="w-full border-4 border-black p-3 rounded-xl font-black text-center">
                             <input type="file" id="bill" class="hidden" accept="image/*" onchange="updateFileName(this)">
-                            <button type="button" onclick="document.getElementById('bill').click()" id="bill-btn" class="w-full border-2 border-dashed border-black p-3 rounded-xl font-black text-xs bg-white uppercase">
-                                <span id="bill-text">TẢI BILL MINH CHỨNG</span>
-                            </button>
+                            <button type="button" onclick="document.getElementById('bill').click()" id="bill-btn" class="w-full border-2 border-dashed border-black p-3 rounded-xl font-black text-xs bg-white uppercase"><span id="bill-text">TẢI BILL MINH CHỨNG</span></button>
                         </div>
-                        <button id="btnSubmit" onclick="doAction('submit')" class="btn-comic w-full h-[55px] text-xl uppercase italic">Gửi báo danh ngay 🔥</button>
+                        <button id="btnSubmit" onclick="doAction('submit')" class="btn-comic w-full h-[55px] text-xl uppercase italic">Gửi báo danh 🔥</button>
                     </div>
                 </div>
             </div>
 
-            <!-- ĐỒNG CỪU (HIỆN TẤT CẢ) -->
             <div class="lg:col-span-4">
                 <div class="farm-bg comic-border relative">
-                    <div class="p-4 bg-[#7c2d12] border-b-4 border-black sticky top-0 z-10">
-                        <h3 class="text-center font-black text-white text-2xl uppercase italic" style="font-family: 'Bangers'">Đồng Cừu Ưu Tú 🐑</h3>
+                    <div class="p-4 bg-black/40 backdrop-blur-sm border-b-4 border-black sticky top-0 z-10">
+                        <h3 class="text-center font-black text-white text-2xl uppercase italic drop-shadow-lg" style="font-family: 'Bangers'">Đồng Cừu Ưu Tú 🐑</h3>
                     </div>
                     <div id="farm-grid"></div>
                 </div>
@@ -140,30 +141,24 @@
 
     <script>
         const APP_URL = "https://script.google.com/macros/s/AKfycbwuBr7YVxEQ975Jx6fsFG7PrLs5NXrBZ6JPHhg5lycXjc8JlbWdXcCeUsU0M8FMKx4t0g/exec"; 
-        let myNick = "";
-        let myAva = "avatar1.jpg";
+        let myNick = "", myAva = "avatar1.jpg";
         let milestonesAchieved = JSON.parse(localStorage.getItem('achievements') || '[]');
 
         function pickAva(el, url) {
             document.querySelectorAll('.ava-box').forEach(x => x.classList.remove('selected'));
-            el.classList.add('selected');
-            myAva = url;
+            el.classList.add('selected'); myAva = url;
         }
 
         function handleUpload(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    const img = new Image();
-                    img.src = e.target.result;
+                    const img = new Image(); img.src = e.target.result;
                     img.onload = function() {
                         const canvas = document.createElement('canvas');
-                        const MAX_WIDTH = 150;
-                        const scaleSize = MAX_WIDTH / img.width;
-                        canvas.width = MAX_WIDTH;
-                        canvas.height = img.height * scaleSize;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        const MAX_WIDTH = 150; const scaleSize = MAX_WIDTH / img.width;
+                        canvas.width = MAX_WIDTH; canvas.height = img.height * scaleSize;
+                        const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                         const compressed = canvas.toDataURL('image/jpeg', 0.8);
                         document.getElementById('pre-view').innerHTML = `<img src="${compressed}" class="w-full h-full object-cover rounded-lg">`;
                         myAva = compressed;
@@ -187,9 +182,8 @@
             document.getElementById('group-widget').classList.remove('hidden');
             document.getElementById('user-nick-header').innerText = myNick;
             document.getElementById('user-ava-header').src = myAva;
-            initMap();
-            sync();
-            setInterval(sync, 20000);
+            initMap(); sync(); setInterval(sync, 20000);
+            document.getElementById('bgm').play().catch(() => {});
         }
 
         function initMap() {
@@ -209,25 +203,16 @@
             try {
                 const res = await fetch(APP_URL);
                 const data = await res.json();
-                
-                // Cập nhật Chuỗi Nhóm
                 document.getElementById('group-streak-val').innerText = `${data.groupStreak} DAYS`;
                 document.getElementById('group-count-val').innerText = `${data.activeToday}/30 Cừu`;
-                const percent = Math.min((data.activeToday / 30) * 100, 100);
-                document.getElementById('group-bar').style.width = percent + '%';
-
-                // Cập nhật Đồng Cừu (Tất cả mọi người)
-                const grid = document.getElementById('farm-grid');
-                grid.innerHTML = '';
+                document.getElementById('group-bar').style.width = Math.min((data.activeToday / 30) * 100, 100) + '%';
+                
+                const grid = document.getElementById('farm-grid'); grid.innerHTML = '';
                 data.users.sort((a,b) => b.streak - a.streak).forEach(u => {
-                    grid.innerHTML += `
-                        <div class="bg-white border-2 border-black p-2 rounded-xl flex items-center gap-2 shadow-[3px_3px_0_#000]">
-                            <img src="${u.avatar}" class="w-8 h-8 rounded-full border-2 border-black object-cover bg-gray-100">
-                            <div class="overflow-hidden leading-tight">
-                                <p class="text-[9px] font-black uppercase truncate">${u.nickname}</p>
-                                <p class="text-[10px] text-red-500 font-bold">${u.streak}D 🔥</p>
-                            </div>
-                        </div>`;
+                    grid.innerHTML += `<div class="bg-white/90 border-2 border-black p-2 rounded-xl flex items-center gap-2 shadow-[2px_2px_0_#000]">
+                        <img src="${u.avatar}" class="w-8 h-8 rounded-full border-2 border-black object-cover">
+                        <div class="overflow-hidden leading-tight"><p class="text-[9px] font-black uppercase truncate">${u.nickname}</p><p class="text-[10px] text-red-500 font-bold">${u.streak}D 🔥</p></div>
+                    </div>`;
                 });
 
                 const me = data.users.find(u => u.nickname.toUpperCase() === myNick);
@@ -236,15 +221,13 @@
                     myAva = me.avatar || myAva;
                     document.getElementById('user-ava-header').src = myAva;
                     document.getElementById('player-pawn').src = myAva;
-
                     if(me.isBroken) {
                         document.getElementById('map-container').classList.add('broken-mode');
                         document.getElementById('alert-broken').classList.remove('hidden');
                     } else {
                         document.getElementById('map-container').classList.remove('broken-mode');
                         document.getElementById('alert-broken').classList.add('hidden');
-                        movePawn(me.streak);
-                        checkMilestones(me.streak);
+                        movePawn(me.streak); checkMilestones(me.streak);
                     }
                 }
             } catch(e) { console.error("Lỗi đồng bộ!"); }
@@ -252,11 +235,9 @@
 
         function movePawn(step) {
             if (step <= 0) return;
-            const target = document.getElementById(`tile-${Math.min(step, 60)}`);
-            const pawn = document.getElementById('player-pawn');
+            const target = document.getElementById(`tile-${Math.min(step, 60)}`), pawn = document.getElementById('player-pawn');
             if (!target || !pawn) return;
-            const mapRect = document.getElementById('game-map').getBoundingClientRect();
-            const rect = target.getBoundingClientRect();
+            const mapRect = document.getElementById('game-map').getBoundingClientRect(), rect = target.getBoundingClientRect();
             pawn.style.left = `${rect.left - mapRect.left + (rect.width/2) - 27}px`;
             pawn.style.top = `${rect.top - mapRect.top + (rect.height/2) - 27}px`;
             for(let i=1; i<=60; i++) {
@@ -269,55 +250,47 @@
             const levels = { 10: "🥉", 20: "🥈", 30: "🥇", 40: "🎖️", 50: "🚀", 60: "👑" };
             Object.keys(levels).forEach(m => {
                 if(streak >= m) {
-                    const badge = document.getElementById(`b${m}`);
-                    if(badge) badge.classList.add('unlocked');
+                    const badge = document.getElementById(`b${m}`); if(badge) badge.classList.add('unlocked');
                     if(!milestonesAchieved.includes(m)) {
-                        milestonesAchieved.push(m);
-                        localStorage.setItem('achievements', JSON.stringify(milestonesAchieved));
-                        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                        showCongrats(levels[m], `Chúc mừng thuyền viên ${myNick}! <br> Bạn đạt chuỗi ${m}!`);
+                        milestonesAchieved.push(m); localStorage.setItem('achievements', JSON.stringify(milestonesAchieved));
                     }
                 }
             });
         }
 
+        function showCongrats(icon, text) {
+            document.getElementById('congrats-badge-icon').innerText = icon;
+            document.getElementById('congrats-text').innerHTML = text;
+            document.getElementById('congrats-modal').style.display = 'flex';
+            document.getElementById('sfx-win').play();
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            gsap.to(".congrats-content", { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.7)" });
+        }
+        function closeCongrats() { gsap.to(".congrats-content", { scale: 0.5, opacity: 0, duration: 0.3, onComplete: () => { document.getElementById('congrats-modal').style.display = 'none'; }}); }
+
         async function doAction(type) {
-            const amt = document.getElementById('amt').value;
-            const billFile = document.getElementById('bill').files[0];
-            if(type === 'submit' && (!amt || !billFile)) return alert("Vui lòng nhập tiền và tải bill!");
-
-            const btn = document.getElementById('btnSubmit');
-            btn.disabled = true; btn.innerText = "ĐANG XỬ LÝ...";
-
+            const amt = document.getElementById('amt').value, billFile = document.getElementById('bill').files[0];
+            if(type === 'submit' && (!amt || !billFile)) return alert("Vui lòng điền đủ tiền và bill!");
+            const btn = document.getElementById('btnSubmit'); btn.disabled = true; btn.innerText = "XỬ LÝ...";
             if (type === 'submit') {
-                const reader = new FileReader();
-                reader.readAsDataURL(billFile);
+                const reader = new FileReader(); reader.readAsDataURL(billFile);
                 reader.onload = function (event) {
-                    const img = new Image();
-                    img.src = event.target.result;
+                    const img = new Image(); img.src = event.target.result;
                     img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        const MAX_WIDTH = 500;
-                        const scaleSize = MAX_WIDTH / img.width;
-                        canvas.width = MAX_WIDTH;
-                        canvas.height = img.height * scaleSize;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        const canvas = document.createElement('canvas'); const MAX_WIDTH = 500; const scaleSize = MAX_WIDTH / img.width;
+                        canvas.width = MAX_WIDTH; canvas.height = img.height * scaleSize;
+                        const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                         sendToServer(canvas.toDataURL('image/jpeg', 0.7), amt, type, btn);
                     }
                 };
-            } else {
-                sendToServer("", 0, type, btn);
-            }
+            } else { sendToServer("", 0, type, btn); }
         }
 
         async function sendToServer(proof, amount, actionType, btn) {
             try {
-                await fetch(APP_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ nickname: myNick, amount: amount, proof: proof, avatar: myAva, action: actionType })
-                });
-                alert("Thành công!");
-                sync();
+                await fetch(APP_URL, { method: 'POST', body: JSON.stringify({ nickname: myNick, amount: amount, proof: proof, avatar: myAva, action: actionType }) });
+                alert("Thành công!"); sync();
             } catch(e) { alert("Lỗi máy chủ!"); }
             btn.disabled = false; btn.innerText = "GỬI BÁO DANH 🔥";
         }
