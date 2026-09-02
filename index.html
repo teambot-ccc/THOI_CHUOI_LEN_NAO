@@ -34,13 +34,78 @@
         .group-status { position: fixed; bottom: 20px; left: 20px; z-index: 1000; width: 220px; cursor: move; user-select: none; touch-action: none; }
 
         /* ĐỒNG CỪU ƯU TÚ: Nhỏ gọn 3 cột */
-        .farm-bg { background-image: url('nenuutu.jpg'); background-size: cover; border: 6px solid #4d2c19; height: 500px; border-radius: 20px; position: relative; display: flex; flex-direction: column; overflow: hidden; }
-        #farm-grid { overflow-y: auto; padding: 10px; flex-grow: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-        
-        .sheep-card { background: rgba(255, 255, 255, 0.9); border: 2px solid #000; border-radius: 12px; padding: 4px; display: flex; flex-direction: column; align-items: center; text-align: center; box-shadow: 2px 2px 0px #000; }
-        .sheep-card img { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #000; object-fit: cover; background: white; }
-        .sheep-card p.name { font-size: 8px; font-weight: 900; margin-top: 2px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
-        .sheep-card p.streak { font-size: 9px; color: #ef4444; font-weight: 700; }
+/* Khung chứa Đồng Cừu */
+.farm-bg { 
+    background-image: url('nenuutu.jpg'); 
+    background-size: cover; 
+    background-position: center;
+    border: 6px solid #4d2c19; 
+    height: 500px; 
+    border-radius: 25px; 
+    position: relative; 
+    display: flex; 
+    flex-direction: column; 
+    overflow: hidden; 
+    box-shadow: inset 0 0 50px rgba(0,0,0,0.3);
+}
+
+/* Lưới danh sách cừu */
+#farm-grid { 
+    overflow-y: auto; 
+    padding: 12px; 
+    display: grid; 
+    grid-template-columns: repeat(3, 1fr); /* 3 cột ngang */
+    gap: 10px; 
+    align-content: start; /* QUAN TRỌNG: Đẩy các thẻ lên trên, không cho kéo giãn chiều cao */
+    flex-grow: 1;
+}
+
+/* Thẻ cừu nhỏ gọn */
+.sheep-card {
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid #000;
+    border-radius: 15px;
+    padding: 8px 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 3px 3px 0px #000;
+    height: fit-content; /* Chỉ cao bằng nội dung bên trong */
+    transition: transform 0.2s;
+}
+
+.sheep-card:hover {
+    transform: translateY(-2px);
+}
+
+.sheep-card img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #000;
+    object-fit: cover;
+    background: #fff;
+}
+
+.sheep-card p.name {
+    font-size: 9px;
+    font-weight: 900;
+    margin-top: 4px;
+    text-transform: uppercase;
+    color: #1e40af;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sheep-card p.streak {
+    font-size: 10px;
+    color: #ef4444;
+    font-weight: 800;
+    margin-top: 2px;
+}
 
         .badge-item { width: 35px; height: 35px; border-radius: 50%; border: 2px dashed #999; display: flex; align-items: center; justify-content: center; filter: grayscale(1); font-size: 16px; background: #f1f5f9; }
         .badge-item.unlocked { border: 2px solid #000; background: #fff; filter: grayscale(0); box-shadow: 2px 2px 0 #000; transform: scale(1.1); }
@@ -136,16 +201,18 @@
                 </div>
             </div>
 
-            <div class="lg:col-span-4">
-                <div class="farm-bg comic-border relative">
-                    <div class="p-4 bg-black/40 backdrop-blur-sm border-b-4 border-black sticky top-0 z-10">
-                        <h3 class="text-center font-black text-white text-2xl uppercase italic drop-shadow-lg" style="font-family: 'Bangers'">Đồng Cừu Ưu Tú 🐑</h3>
-                    </div>
-                    <div id="farm-grid"></div>
-                </div>
-            </div>
+         <div class="lg:col-span-4">
+    <div class="farm-bg comic-border">
+        <!-- Tiêu đề Đồng Cừu -->
+        <div class="p-3 bg-black/50 backdrop-blur-md border-b-4 border-black sticky top-0 z-10">
+            <h3 class="text-center font-black text-white text-xl uppercase italic tracking-wider drop-shadow-[2px_2px_0px_#000]" style="font-family: 'Bangers'">
+                ĐỒNG CỪU ƯU TÚ 🐑
+            </h3>
         </div>
+        <!-- Danh sách cừu sẽ hiện ở đây -->
+        <div id="farm-grid"></div>
     </div>
+</div>
 
     <script>
         const APP_URL = "https://script.google.com/macros/s/AKfycbwmeV8r7_QNgXu1_a29IhmCPNp_E8FHoBNmUWFAhCUPEiX2YStXDdR-mWfY-nGLWd37JQ/exec"; 
