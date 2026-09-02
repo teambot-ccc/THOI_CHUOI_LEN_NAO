@@ -134,8 +134,8 @@
             <!-- FORM ĐĂNG KÝ -->
             <div id="form-reg" class="space-y-4">
                 <div class="grid grid-cols-3 gap-2">
-                    <div class="ava-box selected" onclick="pickAva(this, 'avatar1.jpg')"><img src="avatar1.jpg" class="h-10 mx-auto"><p class="text-[8px] font-bold">Cừu Non</p></div>
-                    <div class="ava-box" onclick="pickAva(this, 'avatar2.jpg')"><img src="avatar2.jpg" class="h-10 mx-auto"><p class="text-[8px] font-bold">Cừu Cute</p></div>
+                    <div class="ava-box selected" onclick="pickAva(this, 'avatar1.jpg')"><img src="avatar1.jpg" class="h-10 mx-auto"><p class="text-[8px] font-bold">Avatar mẫu 1</p></div>
+                    <div class="ava-box" onclick="pickAva(this, 'avatar2.jpg')"><img src="avatar2.jpg" class="h-10 mx-auto"><p class="text-[8px] font-bold">Avatar mẫu 2</p></div>
                     <div class="ava-box flex flex-col justify-center border-2 border-dashed border-gray-400 overflow-hidden" style="height: 60px;" onclick="document.getElementById('uploadAva').click()">
                         <div id="pre-view" class="w-full h-full flex items-center justify-center"><div class="text-[8px] font-bold uppercase">ẢNH RIÊNG</div></div>
                         <input type="file" id="uploadAva" class="hidden" accept="image/*" onchange="handleUpload(this)">
@@ -148,7 +148,7 @@
 
             <!-- FORM ĐĂNG NHẬP -->
             <div id="form-login" class="hidden space-y-4">
-                <input type="text" id="login-nick" class="w-full border-4 border-black p-3 rounded-xl text-center font-black uppercase" placeholder="TÊN CỪU ĐÃ ĐĂNG KÝ...">
+                <input type="text" id="login-nick" class="w-full border-4 border-black p-3 rounded-xl text-center font-black uppercase" placeholder="TÊN CỪU ĐÃ THỔI CHUỖI LẦN 1...">
                 <input type="password" id="login-pass" class="w-full border-4 border-black p-3 rounded-xl text-center font-black" placeholder="NHẬP MẬT KHẨU...">
                 <button onclick="handleAuth('login')" class="btn-comic w-full text-xl uppercase italic">VÀO HÀNH TRÌNH</button>
             </div>
