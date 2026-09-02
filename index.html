@@ -100,24 +100,27 @@
 
                 <div id="action-box" class="comic-border p-6 bg-yellow-50">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+  <!-- PHẦN NHẬP -->
                         <div class="space-y-3">
-                            <label class="font-black text-xs">SỐ TIỀN DNT THỔI CHUỖI:</label>
-                            <input type="number" id="amt" placeholder="Ví dụ: 11.603" class="w-full border-4 border-black p-3 rounded-xl font-bold bg-white outline-none">
-                            <button type="button" onclick="document.getElementById('bill').click()" class="w-full border-2 border-dashed border-black p-3 rounded-xl font-black text-xs bg-white uppercase"><span id="bill-text">TẢI BILL MINH CHỨNG</span></button>
+                            <label class="font-black text-[10px] uppercase">Số tiền DNT:</label>
+                            <input type="number" id="amt" placeholder="Ví dụ: 11.603" class="w-full border-4 border-black p-3 rounded-xl font-bold bg-white">
+                            <button type="button" onclick="document.getElementById('bill').click()" class="w-full border-2 border-dashed border-black p-2 rounded-xl font-black text-[10px] bg-white uppercase"><span id="bill-text">TẢI BILL MINH CHỨNG</span></button>
                             <input type="file" id="bill" class="hidden" onchange="updateFileName(this)">
                         </div>
-                        <button id="btnSubmit" onclick="doAction('submit')" class="btn-comic w-full h-[55px] text-xl uppercase italic">Gửi báo danh 🔥</button>
+
+                        <!-- NÚT GỬI -->
+                        <button id="btnSubmit" onclick="doAction('submit')" class="btn-comic w-full h-[80px] text-xl uppercase italic">Gửi báo danh 🔥</button>
+
                         <!-- KHUNG ẢNH QR -->
                         <div class="qr-frame">
                             <p class="text-[9px] font-black mb-1">QUÉT MÃ ĐỂ THỔI CHUỖI</p>
                             <!-- THAY QR_CUA_BAN.jpg THÀNH LINK ẢNH QR CỦA BẠN -->
                             <img src="qrcaptain.jpg" class="w-24 h-24 mx-auto border-2 border-black rounded-lg object-contain">
-                            <p class="text-[8px] font-bold mt-1 text-red-500 italic">Nội dung: [Tên cừu] + thổi chuỗi</p>
+                            <p class="text-[8px] font-bold mt-1 text-red-500 italic">Nội dung: [Tên cừu]</p>
                         </div>
                     </div>
                 </div>
             </div>
-
             <div class="lg:col-span-4">
                 <!-- ĐỒNG CỪU 3 CỘT GỐC -->
                 <div class="farm-bg comic-border">
