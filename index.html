@@ -202,218 +202,229 @@
         </div>
     </div>
 
-    <script>
-        const APP_URL = "https://script.google.com/macros/s/AKfycbzaweJEVbL_BVMVMCwquOkqn9rmK5a-FBkY8DXytylcoKrJ20LMHmTby_TOiAemtgFFAA/exec"; 
-        let myNick = "", myPass = "", myAva = "avatar1.jpg", allUsers = [];
-        let milestonesAchieved = JSON.parse(localStorage.getItem('achievements') || '[]');
+  <script>
+    const APP_URL = "https://script.google.com/macros/s/AKfycbzaweJEVbL_BVMVMCwquOkqn9rmK5a-FBkY8DXytylcoKrJ20LMHmTby_TOiAemtgFFAA/exec"; 
+    let myNick = "", myPass = "", myAva = "avatar1.jpg", allUsers = [];
+    let milestonesAchieved = JSON.parse(localStorage.getItem('achievements') || '[]');
 
-        function switchTab(type) {
-            document.getElementById('form-reg').classList.toggle('hidden', type === 'login');
-            document.getElementById('form-login').classList.toggle('hidden', type === 'reg');
-            document.getElementById('tab-reg').classList.toggle('active', type === 'reg');
-            document.getElementById('tab-login').classList.toggle('active', type === 'login');
+    function switchTab(type) {
+        document.getElementById('form-reg').classList.toggle('hidden', type === 'login');
+        document.getElementById('form-login').classList.toggle('hidden', type === 'reg');
+        document.getElementById('tab-reg').classList.toggle('active', type === 'reg');
+        document.getElementById('tab-login').classList.toggle('active', type === 'login');
+    }
+
+    function pickAva(el, url) { document.querySelectorAll('.ava-box').forEach(x => x.classList.remove('selected')); el.classList.add('selected'); myAva = url; }
+    
+    function handleUpload(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                myAva = e.target.result;
+                document.getElementById('pre-view').innerHTML = `<img src="${myAva}" class="w-full h-full object-cover rounded-lg">`;
+                const parentBox = input.closest('.ava-box');
+                document.querySelectorAll('.ava-box').forEach(x => x.classList.remove('selected'));
+                parentBox.classList.add('selected');
+            };
+            reader.readAsDataURL(input.files[0]);
         }
+    }
 
-        function pickAva(el, url) { document.querySelectorAll('.ava-box').forEach(x => x.classList.remove('selected')); el.classList.add('selected'); myAva = url; }
-        
-        function handleUpload(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    myAva = e.target.result;
-                    document.getElementById('pre-view').innerHTML = `<img src="${myAva}" class="w-full h-full object-cover rounded-lg">`;
-                    const parentBox = input.closest('.ava-box');
-                    document.querySelectorAll('.ava-box').forEach(x => x.classList.remove('selected'));
-                    parentBox.classList.add('selected');
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
+    async function handleAuth(type) {
+        myNick = document.getElementById(type === 'register' ? 'reg-nick' : 'login-nick').value.trim().toUpperCase();
+        myPass = document.getElementById(type === 'register' ? 'reg-pass' : 'login-pass').value.trim();
+        if(!myNick || !myPass) return alert("Vui lòng nhập Tên và Mật khẩu!");
 
-        async function handleAuth(type) {
-            myNick = document.getElementById(type === 'register' ? 'reg-nick' : 'login-nick').value.trim().toUpperCase();
-            myPass = document.getElementById(type === 'register' ? 'reg-pass' : 'login-pass').value.trim();
-            if(!myNick || !myPass) return alert("Vui lòng nhập Tên và Mật khẩu!");
+        const btn = document.querySelector(type === 'register' ? '#form-reg button' : '#form-login button');
+        const oldText = btn.innerText;
+        btn.innerText = "ĐANG XỬ LÝ..."; btn.disabled = true;
 
-            const btn = document.querySelector(type === 'register' ? '#form-reg button' : '#form-login button');
-            const oldText = btn.innerText;
-            btn.innerText = "XỬ LÝ..."; btn.disabled = true;
-
-            try {
-                if(type === 'register') {
-                    const res = await fetch(APP_URL); const data = await res.json();
-                    if(data.users.find(u => u.nickname.toUpperCase() === myNick)) {
-                        alert("Tên này đã được đăng ký!"); btn.innerText = oldText; btn.disabled = false; return;
-                    }
-                    localStorage.setItem('sheep_nick', myNick); localStorage.setItem('sheep_pass', myPass);
-                    showGuide();
-                } else {
-                    const res = await fetch(APP_URL, { method: 'POST', body: JSON.stringify({ action: 'login', nickname: myNick, password: myPass }) });
-                    const result = await res.json();
-                    if(result.status === 'success') {
-                        myAva = result.avatar; localStorage.setItem('sheep_nick', myNick); localStorage.setItem('sheep_pass', myPass);
-                        showGuide();
-                    } else { alert(result.msg); btn.innerText = oldText; btn.disabled = false; }
+        try {
+            if(type === 'register') {
+                const res = await fetch(APP_URL); const data = await res.json();
+                if(data.users.find(u => u.nickname.toUpperCase() === myNick)) {
+                    alert("Tên này đã được đăng ký!"); btn.innerText = oldText; btn.disabled = false; return;
                 }
-            } catch(e) { alert("Lỗi mạng!"); btn.innerText = oldText; btn.disabled = false; }
-        }
-
-        function showGuide() {
-            document.getElementById('login-screen').classList.add('hidden');
-            const modal = document.getElementById('guide-modal');
-            modal.style.display = 'flex';
-            setTimeout(() => { modal.querySelector('.modal-content').classList.remove('scale-90', 'opacity-0'); }, 10);
-        }
-
-        function enterMainGame() {
-            document.getElementById('guide-modal').style.display = 'none';
-            document.getElementById('group-widget').classList.remove('hidden');
-            document.getElementById('user-nick-header').innerText = myNick;
-            document.getElementById('user-ava-header').src = myAva;
-            sync(); initDraggable();
-            document.getElementById('bgm').play().catch(() => {});
-        }
-
-        window.onload = () => {
-            initMap();
-            const sn = localStorage.getItem('sheep_nick'), sp = localStorage.getItem('sheep_pass');
-            if(sn && sp) { 
-                document.getElementById('login-nick').value = sn; 
-                document.getElementById('login-pass').value = sp; 
-                myNick = sn; myPass = sp;
-                enterMainGame();
-            }
-            setInterval(sync, 20000);
-        }
-
-        function initMap() {
-            const map = document.getElementById('game-map'); map.innerHTML = `<img id="player-pawn" src="avatar1.jpg">`;
-            for (let i = 1; i <= 60; i++) {
-                const tile = document.createElement('div'); tile.id = `tile-${i}`;
-                tile.className = "map-tile " + ([10,20,30,40,50,60].includes(i) ? "milestone" : "");
-                tile.innerText = i; map.appendChild(tile);
-            }
-        }
-
-        async function sync() {
-            try {
-                const res = await fetch(APP_URL); const data = await res.json(); allUsers = data.users;
-                document.getElementById('group-streak-val').innerText = `${data.groupStreak} DAYS`;
-                document.getElementById('group-count-val').innerText = `${data.activeToday}/30`;
-                document.getElementById('group-bar').style.width = Math.min((data.activeToday / 30) * 100, 100) + '%';
-                const grid = document.getElementById('farm-grid'); grid.innerHTML = '';
-                data.users.sort((a,b) => b.streak - a.streak).forEach(u => {
-                    grid.innerHTML += `<div class="sheep-card"><img src="${u.avatar}"><p class="name">${u.nickname}</p><p class="streak">${u.streak}D 🔥</p></div>`;
-                });
-                const me = data.users.find(u => u.nickname.toUpperCase() === (myNick || ""));
-                if(me) {
-                    document.getElementById('user-nick-header').innerText = me.nickname;
-                    document.getElementById('user-ava-header').src = me.avatar;
-                    document.getElementById('player-pawn').src = me.avatar;
-                    document.getElementById('user-streak').innerText = `${me.streak} DAYS 🔥`;
-                    movePawn(me.streak); checkMilestones(me.streak);
-                    if (me.isBroken) {
-                        document.getElementById('alert-broken').classList.remove('hidden');
-                        document.getElementById('map-container').classList.add('broken-mode');
-                        document.getElementById('action-box').classList.add('broken-mode');
-                    } else {
-                        document.getElementById('alert-broken').classList.add('hidden');
-                        document.getElementById('map-container').classList.remove('broken-mode');
-                        document.getElementById('action-box').classList.remove('broken-mode');
-                    }
-                }
-            } catch(e) {}
-        }
-
-        async function doAction(type) {
-            const amtId = type === 'submit' ? 'amt' : 'amt-broken';
-            const billId = type === 'submit' ? 'bill' : 'bill-broken';
-            const amt = document.getElementById(amtId).value;
-            const billFile = document.getElementById(billId).files[0];
-            if(!myNick) return alert("Vui lòng đăng nhập trước!");
-            if(!amt || !billFile) return alert("Nhập đầy đủ tiền và bill!");
-            const btn = type === 'submit' ? document.getElementById('btnSubmit') : document.getElementById('btnRestore');
-            btn.disabled = true; btn.innerText = "XỬ LÝ...";
-            let proof = await new Promise(r => { const f = new FileReader(); f.readAsDataURL(billFile); f.onload = () => r(f.result); });
-            try {
-                const res = await fetch(APP_URL, { method: 'POST', body: JSON.stringify({ action: type, nickname: myNick, password: myPass, amount: amt, proof: proof, avatar: myAva }) });
+                localStorage.setItem('sheep_nick', myNick); localStorage.setItem('sheep_pass', myPass);
+                showGuide();
+            } else {
+                const res = await fetch(APP_URL, { method: 'POST', body: JSON.stringify({ action: 'login', nickname: myNick, password: myPass }) });
                 const result = await res.json();
-                if(result.status === 'success') { alert(type === 'submit' ? "Báo danh thành công!" : "Đã DNT bù, hãy báo danh hôm nay ở dưới nhé!"); sync(); }
-                else { alert(result.msg); }
-            } catch(e) { alert("Lỗi mạng!"); }
-            btn.disabled = false; btn.innerText = type === 'submit' ? "Gửi báo danh 🔥" : "XÁC NHẬN BÙ & PHÁ BĂNG 🆘";
-        }
-
-        function movePawn(step) {
-            const target = document.getElementById(`tile-${Math.min(step, 60)}`), pawn = document.getElementById('player-pawn');
-            if (!target || !pawn) return;
-            const mapRect = document.getElementById('game-map').getBoundingClientRect(), rect = target.getBoundingClientRect();
-            pawn.style.left = `${rect.left - mapRect.left + (rect.width/2) - 27}px`;
-            pawn.style.top = `${rect.top - mapRect.top + (rect.height/2) - 27}px`;
-            for(let i=1; i<=60; i++) {
-                const t = document.getElementById(`tile-${i}`);
-                if(t) t.classList.toggle('active', i <= step);
+                if(result.status === 'success') {
+                    myAva = result.avatar; localStorage.setItem('sheep_nick', myNick); localStorage.setItem('sheep_pass', myPass);
+                    showGuide();
+                } else { alert(result.msg); btn.innerText = oldText; btn.disabled = false; }
             }
-        }
+        } catch(e) { alert("Lỗi mạng!"); btn.innerText = oldText; btn.disabled = false; }
+    }
 
-        function checkMilestones(streak) {
-            const levels = { 10: "🥉", 20: "🥈", 30: "🥇", 40: "🎖️", 50: "🚀", 60: "👑" };
-            Object.keys(levels).forEach(m => {
-                if(streak >= m) {
-                    const badge = document.getElementById(`b${m}`);
-                    if(badge) badge.classList.add('unlocked');
-                    if(!milestonesAchieved.includes(m)) {
-                        confetti({ particleCount: 150, spread: 70 });
-                        document.getElementById('congrats-badge-icon').innerText = levels[m];
-                        document.getElementById('congrats-text').innerText = `BẠN ĐÃ ĐẠT CHUỖI ${m} NGÀY!`;
-                        document.getElementById('congrats-modal').style.display = 'flex';
-                        document.getElementById('sfx-win').play();
-                        milestonesAchieved.push(m); localStorage.setItem('achievements', JSON.stringify(milestonesAchieved));
-                    }
-                }
+    function showGuide() {
+        document.getElementById('login-screen').classList.add('hidden');
+        const modal = document.getElementById('guide-modal');
+        modal.style.display = 'flex';
+        setTimeout(() => { modal.querySelector('.modal-content').classList.remove('scale-90', 'opacity-0'); }, 10);
+    }
+
+    function enterMainGame() {
+        document.getElementById('guide-modal').style.display = 'none';
+        document.getElementById('group-widget').classList.remove('hidden');
+        document.getElementById('user-nick-header').innerText = myNick;
+        document.getElementById('user-ava-header').src = myAva;
+        sync(); initDraggable();
+        document.getElementById('bgm').play().catch(() => {});
+    }
+
+    window.onload = () => {
+        initMap();
+        const sn = localStorage.getItem('sheep_nick'), sp = localStorage.getItem('sheep_pass');
+        if(sn && sp) { 
+            document.getElementById('login-nick').value = sn; 
+            document.getElementById('login-pass').value = sp; 
+            myNick = sn; myPass = sp;
+            enterMainGame();
+        }
+        setInterval(sync, 25000); // Tăng thời gian giãn cách sync để nhẹ server hơn
+    }
+
+    function initMap() {
+        const map = document.getElementById('game-map'); map.innerHTML = `<img id="player-pawn" src="avatar1.jpg">`;
+        for (let i = 1; i <= 60; i++) {
+            const tile = document.createElement('div'); tile.id = `tile-${i}`;
+            tile.className = "map-tile " + ([10,20,30,40,50,60].includes(i) ? "milestone" : "");
+            tile.innerText = i; map.appendChild(tile);
+        }
+    }
+
+    async function sync() {
+        try {
+            const res = await fetch(APP_URL); 
+            const data = await res.json(); 
+            allUsers = data.users;
+
+            // Cập nhật Widget Nhóm
+            document.getElementById('group-streak-val').innerText = `${data.groupStreak} DAYS`;
+            document.getElementById('group-count-val').innerText = `${data.activeToday}/30`;
+            document.getElementById('group-bar').style.width = Math.min((data.activeToday / 30) * 100, 100) + '%';
+
+            // Cập nhật Đồng Cừu Ưu Tú (Tối ưu: Chỉ render nếu có thay đổi hoặc lần đầu)
+            const grid = document.getElementById('farm-grid');
+            let farmHTML = '';
+            data.users.sort((a,b) => b.streak - a.streak).forEach(u => {
+                farmHTML += `<div class="sheep-card"><img src="${u.avatar || 'avatar1.jpg'}" loading="lazy"><p class="name">${u.nickname}</p><p class="streak">${u.streak}D 🔥</p></div>`;
             });
-        }
+            grid.innerHTML = farmHTML;
 
-        function initDraggable() {
-            const el = document.getElementById("group-widget");
-            let p1=0, p2=0, p3=0, p4=0;
-            el.onmousedown = start; el.ontouchstart = start;
-            function start(e) { p3 = e.clientX || e.touches[0].clientX; p4 = e.clientY || e.touches[0].clientY; document.onmouseup=end; document.ontouchend=end; document.onmousemove=move; document.ontouchmove=move; }
-            function move(e) {
-                const cx = e.clientX || (e.touches ? e.touches[0].clientX : 0); const cy = e.clientY || (e.touches ? e.touches[0].clientY : 0);
-                p1 = p3 - cx; p2 = p4 - cy; p3 = cx; p4 = cy;
-                el.style.top = (el.offsetTop - p2) + "px"; el.style.left = (el.offsetLeft - p1) + "px"; el.style.bottom = "auto";
+            // Cập nhật thông tin cá nhân
+            const me = data.users.find(u => u.nickname.toUpperCase() === (myNick || ""));
+            if(me) {
+                document.getElementById('user-nick-header').innerText = me.nickname;
+                document.getElementById('user-ava-header').src = me.avatar || 'avatar1.jpg';
+                document.getElementById('player-pawn').src = me.avatar || 'avatar1.jpg';
+                document.getElementById('user-streak').innerText = `${me.streak} DAYS 🔥`;
+                movePawn(me.streak); checkMilestones(me.streak);
+                
+                const isBroken = me.isBroken === true || me.isBroken === "TRUE";
+                document.getElementById('alert-broken').classList.toggle('hidden', !isBroken);
+                document.getElementById('map-container').classList.toggle('broken-mode', isBroken);
+                document.getElementById('action-box').classList.toggle('broken-mode', isBroken);
             }
-            function end() { document.onmouseup=null; document.onmousemove=null; document.ontouchend=null; document.ontouchmove=null; }
-        }
-       function openTodayList() {
-    const listDiv = document.getElementById('today-sheep-list');
-    listDiv.innerHTML = '';
+        } catch(e) { console.log("Sync error:", e); }
+    }
 
-    // Lọc những người có cờ isReportedToday là true (do server xác định)
-    // Nếu server không trả về cờ này, ta mới dùng đến so sánh ngày
-    const todaySheep = allUsers.filter(u => {
-        if (u.isReportedToday === true || u.isReportedToday === "TRUE") return true;
+    async function doAction(type) {
+        const amtId = type === 'submit' ? 'amt' : 'amt-broken';
+        const billId = type === 'submit' ? 'bill' : 'bill-broken';
+        const amt = document.getElementById(amtId).value;
+        const billFile = document.getElementById(billId).files[0];
         
-        // Sửa lỗi so sánh ngày: chuyển cả 2 về cùng định dạng YYYY-MM-DD
-        const userDate = u.lastUpdate ? u.lastUpdate.split('T')[0] : "";
-        const clientDate = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
-        return userDate === clientDate;
-    });
+        if(!myNick) return alert("Vui lòng đăng nhập trước!");
+        if(!amt || !billFile) return alert("Nhập đầy đủ số tiền và tải ảnh bill!");
+        
+        const btn = type === 'submit' ? document.getElementById('btnSubmit') : document.getElementById('btnRestore');
+        btn.disabled = true; btn.innerText = "ĐANG GỬI...";
 
-    if (!todaySheep.length) {
-        listDiv.innerHTML = '<p class="col-span-4 text-gray-400 italic py-4 text-center">Chưa có ai thổi chuỗi hôm nay...</p>';
-    } else {
-        todaySheep.forEach(s => {
-            listDiv.innerHTML += `
-                <div class="flex flex-col items-center">
-                    <img src="${s.avatar}" class="w-12 h-12 rounded-full border-2 border-black object-cover">
-                    <p class="text-[8px] font-bold uppercase mt-1 truncate w-full text-center">${s.nickname}</p>
-                </div>`;
+        try {
+            let proof = await new Promise(r => { const f = new FileReader(); f.readAsDataURL(billFile); f.onload = () => r(f.result); });
+            const res = await fetch(APP_URL, { method: 'POST', body: JSON.stringify({ action: type, nickname: myNick, password: myPass, amount: amt, proof: proof, avatar: myAva }) });
+            const result = await res.json();
+            if(result.status === 'success') { 
+                alert(type === 'submit' ? "Báo danh thành công!" : "Đã khôi phục chuỗi, hãy báo danh tiếp ở bên dưới!"); 
+                sync(); 
+            } else { alert(result.msg); }
+        } catch(e) { alert("Lỗi kết nối server!"); }
+        
+        btn.disabled = false; 
+        btn.innerText = type === 'submit' ? "Gửi báo danh 🔥" : "XÁC NHẬN BÙ & PHÁ BĂNG 🆘";
+    }
+
+    function movePawn(step) {
+        const target = document.getElementById(`tile-${Math.min(step, 60)}`), pawn = document.getElementById('player-pawn');
+        if (!target || !pawn) return;
+        const mapRect = document.getElementById('game-map').getBoundingClientRect(), rect = target.getBoundingClientRect();
+        pawn.style.left = `${rect.left - mapRect.left + (rect.width/2) - 27}px`;
+        pawn.style.top = `${rect.top - mapRect.top + (rect.height/2) - 27}px`;
+        for(let i=1; i<=60; i++) {
+            const t = document.getElementById(`tile-${i}`);
+            if(t) t.classList.toggle('active', i <= step);
+        }
+    }
+
+    function checkMilestones(streak) {
+        const levels = { 10: "🥉", 20: "🥈", 30: "🥇", 40: "🎖️", 50: "🚀", 60: "👑" };
+        Object.keys(levels).forEach(m => {
+            if(streak >= m && !milestonesAchieved.includes(m)) {
+                const badge = document.getElementById(`b${m}`);
+                if(badge) badge.classList.add('unlocked');
+                confetti({ particleCount: 150, spread: 70 });
+                document.getElementById('congrats-badge-icon').innerText = levels[m];
+                document.getElementById('congrats-text').innerText = `BẠN ĐÃ ĐẠT CHUỖI ${m} NGÀY!`;
+                document.getElementById('congrats-modal').style.display = 'flex';
+                document.getElementById('sfx-win').play().catch(()=>{});
+                milestonesAchieved.push(m); localStorage.setItem('achievements', JSON.stringify(milestonesAchieved));
+            }
         });
     }
-    document.getElementById('today-modal').style.display = 'flex';
-}
-    </script>
+
+    function initDraggable() {
+        const el = document.getElementById("group-widget");
+        let p1=0, p2=0, p3=0, p4=0;
+        el.onmousedown = start; el.ontouchstart = start;
+        function start(e) { p3 = e.clientX || e.touches[0].clientX; p4 = e.clientY || e.touches[0].clientY; document.onmouseup=end; document.ontouchend=end; document.onmousemove=move; document.ontouchmove=move; }
+        function move(e) {
+            const cx = e.clientX || (e.touches ? e.touches[0].clientX : 0); const cy = e.clientY || (e.touches ? e.touches[0].clientY : 0);
+            p1 = p3 - cx; p2 = p4 - cy; p3 = cx; p4 = cy;
+            el.style.top = (el.offsetTop - p2) + "px"; el.style.left = (el.offsetLeft - p1) + "px"; el.style.bottom = "auto";
+        }
+        function end() { document.onmouseup=null; document.onmousemove=null; document.ontouchend=null; document.ontouchmove=null; }
+    }
+
+    function openTodayList() {
+        const listDiv = document.getElementById('today-sheep-list');
+        listDiv.innerHTML = '<p class="col-span-4 text-center">Đang tải...</p>';
+        
+        const todaySheep = allUsers.filter(u => {
+            if (u.isReportedToday === true || u.isReportedToday === "TRUE") return true;
+            const userDate = u.lastUpdate ? u.lastUpdate.split('T')[0] : "";
+            const clientDate = new Date().toLocaleDateString('en-CA');
+            return userDate === clientDate;
+        });
+
+        if (!todaySheep.length) {
+            listDiv.innerHTML = '<p class="col-span-4 text-gray-400 italic py-4 text-center">Chưa có ai thổi chuỗi hôm nay...</p>';
+        } else {
+            listDiv.innerHTML = todaySheep.map(s => `
+                <div class="flex flex-col items-center">
+                    <img src="${s.avatar || 'avatar1.jpg'}" class="w-12 h-12 rounded-full border-2 border-black object-cover">
+                    <p class="text-[8px] font-bold uppercase mt-1 truncate w-full text-center">${s.nickname}</p>
+                </div>`).join('');
+        }
+        document.getElementById('today-modal').style.display = 'flex';
+    }
+
+    // NÚT ĐÓNG ĐÃ ĐƯỢC THÊM LẠI Ở ĐÂY
+    function closeTodayList() {
+        document.getElementById('today-modal').style.display = 'none';
+    }
+</script>
 </body>
 </html>
