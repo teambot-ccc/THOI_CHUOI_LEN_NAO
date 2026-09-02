@@ -59,19 +59,18 @@
         </div>
     </nav>
 
-    <!-- 2 NÚT BẤM MỚI Ở ĐÂY (GIỮA NAV VÀ HEADER) -->
-    <div class="max-w-7xl mx-auto px-4 mt-6 flex justify-center gap-20">
-        <button onclick="document.getElementById('guide-modal').style.display='flex'; setTimeout(() => { document.querySelector('#guide-modal .modal-content').classList.remove('scale-90', 'opacity-0'); }, 10);" class="btn-comic !bg-white !text-red-600 border-red-600 px-12 py-2 text-xl lowercase italic">luật</button>
-        <button onclick="document.getElementById('login-screen').classList.remove('hidden')" class="btn-comic !bg-white !text-red-600 border-red-600 px-12 py-2 text-xl lowercase italic">đăng ký/ đăng nhập</button>
+    <!-- HAI NÚT MỚI THÊM VÀO GIỮA NAV VÀ MAIN-UI -->
+    <div class="max-w-7xl mx-auto px-4 mt-4 flex justify-center gap-16">
+        <button onclick="document.getElementById('guide-modal').style.display='flex'; setTimeout(() => { document.querySelector('#guide-modal .modal-content').classList.remove('scale-90', 'opacity-0'); }, 10);" class="btn-comic bg-white !text-red-500 border-red-500 px-12 py-2 text-xl lowercase italic">luật</button>
+        <button onclick="document.getElementById('login-screen').classList.remove('hidden')" class="btn-comic bg-white !text-red-500 border-red-500 px-12 py-2 text-xl lowercase italic">đăng ký/ đăng nhập</button>
     </div>
 
-    <!-- MAIN UI (Sửa class để luôn hiện nền map) -->
     <div id="main-ui" class="max-w-7xl mx-auto p-4 space-y-6">
         <header class="flex flex-wrap justify-between items-center bg-white border-4 border-black p-4 rounded-3xl">
             <div class="flex items-center gap-4">
                 <img id="user-ava-header" src="avatar1.jpg" class="w-16 h-16 rounded-full border-4 border-black bg-white object-cover">
                 <div>
-                    <p id="user-nick-header" class="text-2xl font-black text-blue-600 uppercase italic">CHƯA ĐĂNG NHẬP</p>
+                    <p id="user-nick-header" class="text-2xl font-black text-blue-600 uppercase italic">chưa đăng nhập</p>
                     <div class="flex gap-1 mt-1" id="badge-container">
                         <div class="badge-item" id="b10">🥉</div><div class="badge-item" id="b20">🥈</div><div class="badge-item" id="b30">🥇</div>
                         <div class="badge-item" id="b40">🎖️</div><div class="badge-item" id="b50">🚀</div><div class="badge-item" id="b60">👑</div>
@@ -83,6 +82,7 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-24">
             <div class="lg:col-span-8 space-y-6">
+                <!-- KHUNG ĐÓNG BĂNG -->
                 <div id="alert-broken" class="hidden comic-border bg-slate-800 text-white p-6 text-center space-y-4">
                     <h2 class="text-2xl font-black text-cyan-400" style="font-family: 'Bangers'">BẠN ĐÃ BỊ ĐÓNG BĂNG! ❄️</h2>
                     <p class="text-[11px] italic">Bạn đã bị đóng băng rồi! Hãy <b>DNT Bù</b> để phá băng và nhận lại Streak bù để được báo danh hôm nay nhé.</p>
@@ -106,7 +106,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                         <div class="space-y-2">
                             <label class="font-black text-[10px] uppercase">Số tiền DNT (> 0 đ):</label>
-                            <input type="number" id="amt" placeholder="Ví dụ: 11.603" class="w-full border-4 border-black p-3 rounded-xl font-bold bg-white">
+                                                        <input type="number" id="amt" placeholder="Ví dụ: 11.603" class="w-full border-4 border-black p-3 rounded-xl font-bold bg-white">
                             <button type="button" onclick="document.getElementById('bill').click()" class="w-full border-2 border-dashed border-black p-2 rounded-xl font-black text-[10px] bg-white uppercase"><span id="bill-text">TẢI BILL MINH CHỨNG</span></button>
                             <input type="file" id="bill" class="hidden" onchange="document.getElementById('bill-text').innerText='ĐÃ CHỌN BILL'">
                         </div>
@@ -128,10 +128,9 @@
         </div>
     </div>
 
-    <!-- TAB ĐĂNG KÝ / ĐĂNG NHẬP -->
-    <div id="login-screen" class="fixed inset-0 z-[2000] bg-sky-500 flex items-center justify-center p-4 hidden">
-        <!-- Thêm nút đóng X để người dùng thoát bảng nếu lỡ bấm nhầm -->
-        <button onclick="document.getElementById('login-screen').classList.add('hidden')" class="absolute top-5 right-5 text-white text-4xl font-bold">×</button>
+    <!-- TAB ĐĂNG KÝ / ĐĂNG NHẬP (Lúc đầu hiện toàn màn hình, có nút X để đóng) -->
+    <div id="login-screen" class="fixed inset-0 z-[2000] bg-sky-500 flex items-center justify-center p-4">
+        <button onclick="document.getElementById('login-screen').classList.add('hidden')" class="absolute top-5 right-5 text-white text-5xl font-bold">×</button>
         <div class="comic-border p-8 max-w-md w-full text-center space-y-4">
             <h1 class="text-3xl text-blue-700" style="font-family: 'Bangers'">THỔI CHUỖI CÙNG NHAU</h1>
             <p class="font-bold italic text-sm text-gray-700">Chọn Avatar, tên và password duy nhất cho suốt hành trình!</p>
@@ -176,11 +175,12 @@
         </div>
     </div>
 
-    <!-- CÁC MODAL KHÁC GIỮ NGUYÊN -->
+    <!-- DANH SÁCH NGÀY -->
     <div id="today-modal" class="modal-overlay" onclick="closeTodayList()">
         <div class="modal-content max-w-lg" onclick="event.stopPropagation()"><h2 class="text-2xl font-black text-orange-600 mb-4" style="font-family: 'Bangers'">CỪU ĐÃ THỔI HÔM NAY</h2><div id="today-sheep-list" class="grid grid-cols-4 gap-3 max-h-[400px] overflow-y-auto p-2"></div><button onclick="closeTodayList()" class="btn-comic mt-6 mx-auto">ĐÓNG</button></div>
     </div>
 
+    <!-- WIDGET CHUỖI NHÓM -->
     <div id="group-widget" class="group-status hidden">
         <div class="comic-border p-4 bg-orange-400 border-black shadow-[4px_4px_0px_#000]">
             <p class="text-[10px] font-black uppercase text-white mb-1 text-center">Chuỗi Nhóm 🔥</p>
@@ -192,6 +192,7 @@
         </div>
     </div>
 
+    <!-- HUY CHƯƠNG POPUP -->
     <div id="congrats-modal" class="modal-overlay">
         <div class="modal-content text-center">
             <h2 class="text-5xl mb-4 text-yellow-500" style="font-family: 'Bangers'">TUYỆT VỜI!</h2>
@@ -282,7 +283,6 @@
                 myNick = sn; myPass = sp;
                 enterMainGame();
             } else {
-                // Nếu chưa login thì hiện bảng login
                 document.getElementById('login-screen').classList.remove('hidden');
             }
             setInterval(sync, 20000);
@@ -307,7 +307,7 @@
                 data.users.sort((a,b) => b.streak - a.streak).forEach(u => {
                     grid.innerHTML += `<div class="sheep-card"><img src="${u.avatar}"><p class="name">${u.nickname}</p><p class="streak">${u.streak}D 🔥</p></div>`;
                 });
-                const me = data.users.find(u => u.nickname.toUpperCase() === myNick);
+                const me = data.users.find(u => u.nickname.toUpperCase() === (myNick || ""));
                 if(me) {
                     document.getElementById('user-nick-header').innerText = me.nickname;
                     document.getElementById('user-ava-header').src = me.avatar;
@@ -332,7 +332,7 @@
             const billId = type === 'submit' ? 'bill' : 'bill-broken';
             const amt = document.getElementById(amtId).value;
             const billFile = document.getElementById(billId).files[0];
-            if(!myNick) return alert("Vui lòng đăng nhập!");
+            if(!myNick) return alert("Vui lòng đăng nhập trước!");
             if(!amt || !billFile) return alert("Nhập đầy đủ tiền và bill!");
             const btn = type === 'submit' ? document.getElementById('btnSubmit') : document.getElementById('btnRestore');
             btn.disabled = true; btn.innerText = "XỬ LÝ...";
@@ -340,7 +340,7 @@
             try {
                 const res = await fetch(APP_URL, { method: 'POST', body: JSON.stringify({ action: type, nickname: myNick, password: myPass, amount: amt, proof: proof, avatar: myAva }) });
                 const result = await res.json();
-                if(result.status === 'success') { alert(type === 'submit' ? "Báo danh thành công!" : "Đã DNT bù!"); sync(); }
+                if(result.status === 'success') { alert(type === 'submit' ? "Báo danh thành công!" : "Đã DNT bù! Hãy báo danh tiếp ngày hôm nay."); sync(); }
                 else { alert(result.msg); }
             } catch(e) { alert("Lỗi mạng!"); }
             btn.disabled = false; btn.innerText = type === 'submit' ? "Gửi báo danh 🔥" : "XÁC NHẬN BÙ & PHÁ BĂNG 🆘";
