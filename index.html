@@ -90,7 +90,7 @@
                         <div class="space-y-2 text-left text-black">
                             <input type="number" id="amt-broken" placeholder="Số tiền bù khôi phục chuỗi ..." class="w-full p-2 rounded-lg font-bold">
                             <input type="file" id="bill-broken" class="hidden" onchange="document.getElementById('text-bill-broken').innerText='ĐÃ CHỌN BILL'">
-                            <button onclick="document.getElementById('bill-broken').click()" class="w-full bg-slate-200 p-2 text-[10px] rounded-lg"><span id="text-bill-broken">TẢI BILL BÙ</span></button>
+                            <button onclick="document.getElementById('bill-broken').click()" class="w-full bg-slate-200 p-2 text-[10px] rounded-lg text-black"><span id="text-bill-broken">TẢI BILL BÙ</span></button>
                             <button id="btnRestore" onclick="doAction('restore')" class="btn-comic w-full bg-blue-500 text-sm italic">XÁC NHẬN BÙ & PHÁ BĂNG 🆘</button>
                         </div>
                     </div>
@@ -126,7 +126,6 @@
 
     <!-- MODALS -->
     <div id="login-screen" class="fixed inset-0 z-[2000] bg-sky-500 flex items-center justify-center p-4 hidden">
-        <button onclick="document.getElementById('login-screen').classList.add('hidden')" class="absolute top-5 right-5 text-white text-5xl font-bold">×</button>
         <div class="comic-border p-8 max-w-md w-full text-center space-y-4">
             <h1 class="text-3xl text-blue-700 uppercase" style="font-family: 'Bangers'">Thổi chuỗi cùng nhau</h1>
             <p class="font-bold italic text-sm text-gray-700">Chọn Avatar, tên và password duy nhất cho suốt hành trình!</p>
@@ -170,11 +169,11 @@
         </div>
     </div>
 
-    <div id="today-modal" class="modal-overlay" onclick="closeTodayList()">
+    <div id="today-modal" class="modal-overlay" onclick="closeTodayList(event)">
         <div class="modal-content max-w-lg" onclick="event.stopPropagation()">
             <h2 class="text-2xl font-black text-orange-600 mb-4" style="font-family: 'Bangers'">CỪU ĐÃ THỔI HÔM NAY</h2>
             <div id="today-sheep-list" class="grid grid-cols-4 gap-3 max-h-[400px] overflow-y-auto p-2"></div>
-            <button onclick="closeTodayList()" class="btn-comic mt-6 mx-auto uppercase">Đóng</button>
+            <button onclick="closeTodayList(event)" class="btn-comic mt-6 mx-auto uppercase">Đóng</button>
         </div>
     </div>
 
@@ -199,7 +198,7 @@
     </div>
 
     <script>
-        const APP_URL = "https://script.google.com/macros/s/AKfycbzaweJEVbL_BVMVMCwquOkqn9rmK5a-FBkY8DXytylcoKrJ20LMHmTby_TOiAemtgFFAA/exec"; 
+        const APP_URL = "https://script.google.com/macros/s/AKfycbyp0cfIxB4FaWgwKbR82MWGuGeXIZrY8ccZd-qBZ5Wf-1sHDnFAAmyQd6Fl9ijRRUtZxA/exec"; 
         let myNick = "", myPass = "", myAva = "avatar1.jpg", allUsers = [];
         let lastDataHash = "";
         let milestonesAchieved = JSON.parse(localStorage.getItem('achievements') || '[]');
@@ -250,11 +249,68 @@
             btn.disabled = true; btn.innerText = "ĐANG GỬI...";
             try {
                 let proof = await new Promise(r => { const f = new FileReader(); f.readAsDataURL(file); f.onload = () => r(f.result); });
-                const res = await fetch(APP_URL, { method: 'POST', body: JSON.stringify({ action: type, nickname: myNick, password: myPass, amount: amt, proof, avatar: myAva }) });
+                
+                // Sử dụng URLSearchParams thay vì JSON để tránh lỗi CORS trên GAS
+                const params = new URLSearchParams();
+                params.append('action', type);
+                params.append('nickname', myNick);
+                params.append('password', myPass);
+                params.append('amount', amt);
+                params.append('proof', proof);
+                params.append('avatar', myAva);
+
+                const res = await fetch(APP_URL, { 
+                    method: 'POST', 
+                    body: params,
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                });
+                
                 const result = await res.json();
                 alert(result.msg); if(result.status === 'success') sync();
-            } catch(e) { alert("Lỗi mạng, vui lòng thử lại!"); }
+            } catch(e) { alert("Lỗi kết nối server, hãy thử lại!"); }
             btn.disabled = false; btn.innerText = type === 'submit' ? "Gửi báo danh 🔥" : "XÁC NHẬN BÙ & PHÁ BĂNG 🆘";
+        }
+
+        async function handleAuth(type) {
+            const nickInput = document.getElementById(type === 'register' ? 'reg-nick' : 'login-nick');
+            const passInput = document.getElementById(type === 'register' ? 'reg-pass' : 'login-pass');
+            myNick = nickInput.value.trim().toUpperCase();
+            myPass = passInput.value.trim();
+            
+            if(!myNick || !myPass) return alert("Vui lòng nhập đầy đủ Tên và Mật khẩu!");
+            
+            const btn = document.querySelector(type === 'register' ? '#form-reg button' : '#form-login button');
+            const oldText = btn.innerText;
+            btn.innerText = "XỬ LÝ..."; btn.disabled = true;
+
+            try {
+                const actionName = (type === 'register' ? 'register' : 'login');
+                const params = new URLSearchParams();
+                params.append('action', actionName);
+                params.append('nickname', myNick);
+                params.append('password', myPass);
+                params.append('avatar', myAva);
+
+                const res = await fetch(APP_URL, { 
+                    method: 'POST', 
+                    body: params,
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                });
+                
+                const result = await res.json();
+                
+                if(result.status === 'success') {
+                    if(result.avatar) myAva = result.avatar;
+                    localStorage.setItem('sheep_nick', myNick);
+                    localStorage.setItem('sheep_pass', myPass);
+                    document.getElementById('login-screen').classList.add('hidden');
+                    document.getElementById('group-widget').classList.remove('hidden');
+                    sync();
+                } else {
+                    alert(result.msg);
+                }
+            } catch(e) { alert("Lỗi mạng khi xác thực!"); }
+            btn.innerText = oldText; btn.disabled = false;
         }
 
         function openTodayList() {
@@ -272,7 +328,8 @@
             document.getElementById('today-modal').style.display = 'flex';
         }
 
-        function closeTodayList() {
+        function closeTodayList(e) {
+            if (e && e.target.closest('.modal-content') && !e.target.closest('.btn-comic')) return;
             document.getElementById('today-modal').style.display = 'none';
         }
 
@@ -322,34 +379,6 @@
                 el.style.top = (el.offsetTop - p2) + "px"; el.style.left = (el.offsetLeft - p1) + "px"; el.style.bottom = "auto";
             }
             function end() { document.onmouseup=null; document.onmousemove=null; document.ontouchend=null; document.ontouchmove=null; }
-        }
-
-        async function handleAuth(type) {
-            myNick = document.getElementById(type === 'register' ? 'reg-nick' : 'login-nick').value.trim().toUpperCase();
-            myPass = document.getElementById(type === 'register' ? 'reg-pass' : 'login-pass').value.trim();
-            if(!myNick || !myPass) return alert("Vui lòng nhập đầy đủ Tên và Mật khẩu!");
-            
-            const btn = document.querySelector(type === 'register' ? '#form-reg button' : '#form-login button');
-            const oldText = btn.innerText;
-            btn.innerText = "XỬ LÝ..."; btn.disabled = true;
-
-            try {
-                // Sửa action: register cho đăng ký, login cho đăng nhập
-                const action = (type === 'register' ? 'register' : 'login');
-                const res = await fetch(APP_URL, { method: 'POST', body: JSON.stringify({ action: action, nickname: myNick, password: myPass, avatar: myAva }) });
-                const result = await res.json();
-                
-                if(result.status === 'success') {
-                    if(result.avatar) myAva = result.avatar;
-                    localStorage.setItem('sheep_nick', myNick); localStorage.setItem('sheep_pass', myPass);
-                    document.getElementById('login-screen').classList.add('hidden');
-                    document.getElementById('group-widget').classList.remove('hidden');
-                    sync();
-                } else {
-                    alert(result.msg);
-                }
-            } catch(e) { alert("Lỗi mạng khi xác thực!"); }
-            btn.innerText = oldText; btn.disabled = false;
         }
 
         function switchTab(type) {
