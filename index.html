@@ -386,32 +386,32 @@
             }
             function end() { document.onmouseup=null; document.onmousemove=null; document.ontouchend=null; document.ontouchmove=null; }
         }
-       function openTodayList() {
+      function openTodayList() {
     const listDiv = document.getElementById('today-sheep-list');
     listDiv.innerHTML = '';
 
-    // Lấy ngày hiện tại theo múi giờ Việt Nam (định dạng YYYY-MM-DD)
-    const options = { timeZone: 'Asia/Ho_Chi_Minh', year: 'numeric', month: '2-digit', day: '2-digit' };
-    const formatter = new Intl.DateTimeFormat('en-CA', options); // en-CA trả về YYYY-MM-DD
-    const todayStr = formatter.format(new Date());
+    // 1. Lấy ngày hiện tại kiểu DD/MM/YYYY (giống hệt định dạng trên Sheet của bạn)
+    const now = new Date();
+    const dd = String(now.getDate()).padStart(2, '0');
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const yyyy = now.getFullYear();
+    const todayStr = dd + '/' + mm + '/' + yyyy; // Kết quả: "03/09/2026"
 
-    console.log("Ngày hệ thống kiểm tra:", todayStr); // Để debug
-
-    // Lọc những người có lastUpdate khớp với ngày hôm nay
+    // 2. Lọc cừu: Chỉ lấy những người có ngày cập nhật (Cột D) khớp với hôm nay
     const todaySheep = allUsers.filter(u => {
-        // Kiểm tra nếu backend đã có isReportedToday hoặc so sánh chuỗi ngày
-        return u.isReportedToday === true || (u.lastUpdate && u.lastUpdate.includes(todayStr));
+        // Kiểm tra xem chuỗi ngày trong LastUpdate có chứa ngày hôm nay không
+        return u.lastUpdate && u.lastUpdate.indexOf(todayStr) !== -1;
     });
 
-    if (!todaySheep.length) {
+    // 3. Hiển thị lên giao diện
+    if (todaySheep.length === 0) {
         listDiv.innerHTML = '<p class="col-span-4 text-gray-400 italic py-4 text-center w-full">Chưa có ai thổi chuỗi hôm nay...</p>';
     } else {
         todaySheep.forEach(s => {
             listDiv.innerHTML += `
-                <div class="flex flex-col items-center bg-gray-50 p-2 rounded-xl border border-gray-200">
-                    <img src="${s.avatar}" class="w-12 h-12 rounded-full border-2 border-black object-cover shadow-sm">
-                    <p class="text-[9px] font-black uppercase mt-2 truncate w-full text-center text-blue-800">${s.nickname}</p>
-                    <span class="text-[8px] text-red-500 font-bold">🔥 ĐÃ THỔI</span>
+                <div class="flex flex-col items-center">
+                    <img src="${s.avatar}" class="w-12 h-12 rounded-full border-2 border-black object-cover">
+                    <p class="text-[8px] font-bold uppercase mt-1 truncate w-full text-center">${s.nickname}</p>
                 </div>`;
         });
     }
