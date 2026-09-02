@@ -33,9 +33,11 @@
         .sheep-card p.streak { font-size: 10px; color: #ef4444; font-weight: 800; }
         .badge-item { width: 35px; height: 35px; border-radius: 50%; border: 2px dashed #999; display: flex; align-items: center; justify-content: center; filter: grayscale(1); font-size: 16px; background: #f1f5f9; }
         .badge-item.unlocked { border: 2px solid #000; background: #fff; filter: grayscale(0); box-shadow: 2px 2px 0 #000; transform: scale(1.1); }
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 3000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 3000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         .modal-content { background: white; border: 6px solid #000; border-radius: 40px; padding: 30px; text-align: center; max-width: 450px; width: 100%; position: relative; }
         .qr-frame { border: 3px solid #000; border-radius: 15px; background: white; padding: 8px; text-align: center; box-shadow: 4px 4px 0 #000; }
+        .floating { animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
     </style>
 </head>
 <body>
@@ -44,23 +46,32 @@
 
     <nav class="max-w-7xl mx-auto p-4 mt-2">
         <div class="comic-border bg-white flex flex-wrap items-center justify-between px-6 py-3 gap-4">
-            <a href="/" class="text-xl font-black italic text-blue-700" style="font-family: 'Bangers'"><i class="fas fa-rocket mr-2"></i>CAPTAIN BOY</a>
-            <div class="flex flex-wrap gap-4 text-[11px] font-black uppercase italic items-center">
-                <a href="#" onclick="toggleModal('guide-modal')" class="text-blue-600 border-b-2 border-blue-600 hover:text-blue-800 transition"><i class="fas fa-book"></i> LUẬT CHƠI</a>
-                <a href="#" onclick="toggleModal('login-screen')" class="text-orange-600 border-b-2 border-orange-600 hover:text-orange-800 transition"><i class="fas fa-user-circle"></i> ĐĂNG KÝ / ĐĂNG NHẬP</a>
-                <a href="/thoi-chuoi" class="hidden md:block"><i class="fas fa-link"></i> THỔI CHUỖI CÙNG NHAU</a>
-                <a href="/social-chien-tich/index.html" class="hidden md:block hover:text-blue-500 transition"><i class="fas fa-award"></i> CHIẾN TÍCH</a>
+            <a href="/" class="text-xl font-black italic text-blue-700" style="font-family: 'Bangers'"><i class="fas fa-rocket mr-2"></i>NHỮNG CON BOT CỦA CAPTAIN BOY</a>
+            <div class="flex flex-wrap gap-4 text-[11px] font-black uppercase italic">
+                <a href="/" class="hover:text-blue-500 transition"><i class="fas fa-home"></i> TRANG CHỦ</a>
+                <a href="/CAPTAIN-BOY/tieu-su-2/" class="hover:text-blue-500 transition"><i class="fas fa-star"></i> CAPTAIN BOY</a>
+                <a href="/thoi-chuoi" class="text-orange-600 border-b-2 border-orange-600"><i class="fas fa-link"></i> THỔI CHUỖI CÙNG NHAU</a>
+                <a href="/social-chien-tich/index.html" class="hover:text-blue-500 transition"><i class="fas fa-award"></i> CHIẾN TÍCH</a>
+                <a href="/stream-youtube/" class="hover:text-blue-500 transition"><i class="fas fa-video"></i> STREAM</a>
+                <a href="/dinh-nghia-tam-quan-trong-cua-social/" class="hover:text-blue-500 transition"><i class="fas fa-share-alt"></i> SOCIAL</a>
+                <a href="/gioi-thieu/" class="hover:text-blue-500 transition"><i class="fas fa-address-card"></i> ABOUT ME</a>
             </div>
         </div>
     </nav>
 
-    <!-- UI CHÍNH (LUÔN HIỆN HOẶC HIỆN SAU KHI SYNC) -->
+    <!-- 2 NÚT BẤM MỚI Ở ĐÂY (GIỮA NAV VÀ HEADER) -->
+    <div class="max-w-7xl mx-auto px-4 mt-6 flex justify-center gap-20">
+        <button onclick="document.getElementById('guide-modal').style.display='flex'; setTimeout(() => { document.querySelector('#guide-modal .modal-content').classList.remove('scale-90', 'opacity-0'); }, 10);" class="btn-comic !bg-white !text-red-600 border-red-600 px-12 py-2 text-xl lowercase italic">luật</button>
+        <button onclick="document.getElementById('login-screen').classList.remove('hidden')" class="btn-comic !bg-white !text-red-600 border-red-600 px-12 py-2 text-xl lowercase italic">đăng ký/ đăng nhập</button>
+    </div>
+
+    <!-- MAIN UI (Sửa class để luôn hiện nền map) -->
     <div id="main-ui" class="max-w-7xl mx-auto p-4 space-y-6">
         <header class="flex flex-wrap justify-between items-center bg-white border-4 border-black p-4 rounded-3xl">
             <div class="flex items-center gap-4">
                 <img id="user-ava-header" src="avatar1.jpg" class="w-16 h-16 rounded-full border-4 border-black bg-white object-cover">
                 <div>
-                    <p id="user-nick-header" class="text-2xl font-black text-blue-600 uppercase italic">KHÁCH 🐑</p>
+                    <p id="user-nick-header" class="text-2xl font-black text-blue-600 uppercase italic">CHƯA ĐĂNG NHẬP</p>
                     <div class="flex gap-1 mt-1" id="badge-container">
                         <div class="badge-item" id="b10">🥉</div><div class="badge-item" id="b20">🥈</div><div class="badge-item" id="b30">🥇</div>
                         <div class="badge-item" id="b40">🎖️</div><div class="badge-item" id="b50">🚀</div><div class="badge-item" id="b60">👑</div>
@@ -72,17 +83,19 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-24">
             <div class="lg:col-span-8 space-y-6">
-                <!-- KHUNG ĐÓNG BĂNG -->
                 <div id="alert-broken" class="hidden comic-border bg-slate-800 text-white p-6 text-center space-y-4">
                     <h2 class="text-2xl font-black text-cyan-400" style="font-family: 'Bangers'">BẠN ĐÃ BỊ ĐÓNG BĂNG! ❄️</h2>
-                    <p class="text-[11px] italic">Bạn đã bị đóng băng rồi! Hãy DNT Bù để phá băng nhé.</p>
+                    <p class="text-[11px] italic">Bạn đã bị đóng băng rồi! Hãy <b>DNT Bù</b> để phá băng và nhận lại Streak bù để được báo danh hôm nay nhé.</p>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-center">
                         <div class="qr-frame text-black">
+                            <p class="text-[8px] font-black">QUÉT MÃ DNT BÙ (> 0 đ)</p>
                             <img src="qrcaptain.jpg" class="w-20 h-20 mx-auto">
                         </div>
                         <div class="space-y-2 text-left">
                             <input type="number" id="amt-broken" placeholder="Số tiền bù..." class="w-full p-2 rounded-lg text-black font-bold text-sm">
-                            <button id="btnRestore" onclick="doAction('restore')" class="btn-comic w-full bg-blue-500 border-white text-sm">XÁC NHẬN BÙ 🆘</button>
+                            <input type="file" id="bill-broken" class="hidden" onchange="document.getElementById('text-bill-broken').innerText='ĐÃ CHỌN BILL'">
+                            <button onclick="document.getElementById('bill-broken').click()" class="w-full bg-slate-600 border border-dashed p-2 text-[10px] rounded-lg"><span id="text-bill-broken">TẢI BILL BÙ</span></button>
+                            <button id="btnRestore" onclick="doAction('restore')" class="btn-comic w-full bg-blue-500 border-white text-sm">XÁC NHẬN BÙ & PHÁ BĂNG 🆘</button>
                         </div>
                     </div>
                 </div>
@@ -94,13 +107,14 @@
                         <div class="space-y-2">
                             <label class="font-black text-[10px] uppercase">Số tiền DNT (> 0 đ):</label>
                             <input type="number" id="amt" placeholder="Ví dụ: 11.603" class="w-full border-4 border-black p-3 rounded-xl font-bold bg-white">
-                            <button onclick="document.getElementById('bill').click()" class="w-full border-2 border-dashed border-black p-2 rounded-xl font-black text-[10px] bg-white uppercase"><span id="bill-text">TẢI BILL MINH CHỨNG</span></button>
+                            <button type="button" onclick="document.getElementById('bill').click()" class="w-full border-2 border-dashed border-black p-2 rounded-xl font-black text-[10px] bg-white uppercase"><span id="bill-text">TẢI BILL MINH CHỨNG</span></button>
                             <input type="file" id="bill" class="hidden" onchange="document.getElementById('bill-text').innerText='ĐÃ CHỌN BILL'">
                         </div>
                         <button id="btnSubmit" onclick="doAction('submit')" class="btn-comic w-full h-[65px] text-xl uppercase italic">Gửi báo danh 🔥</button>
                         <div class="qr-frame">
+                            <p class="text-[8px] font-black mb-1 uppercase">Mã thổi chuỗi</p>
                             <img src="qrcaptain.jpg" class="w-16 h-16 mx-auto">
-                            <p class="font-bold italic text-[8px] text-gray-700 mt-1">Nội dung: [tên] thổi chuỗi!</p>
+                            <p class="font-bold italic text-[8px] text-gray-700"> Nội dung: [ tên duy trì thổi chuỗi ] + thổi chuỗi Tinh Hà!</p>
                         </div>
                     </div>
                 </div>
@@ -114,73 +128,83 @@
         </div>
     </div>
 
-    <!-- MODAL ĐĂNG KÝ / ĐĂNG NHẬP -->
-    <div id="login-screen" class="modal-overlay">
-        <div class="modal-content">
-            <button onclick="toggleModal('login-screen')" class="absolute top-4 right-4 text-2xl font-bold">×</button>
-            <h1 class="text-3xl text-blue-700" style="font-family: 'Bangers'">HÀNH TRÌNH THỔI CHUỖI</h1>
-            <div class="flex justify-around border-b-2 border-black my-4">
+    <!-- TAB ĐĂNG KÝ / ĐĂNG NHẬP -->
+    <div id="login-screen" class="fixed inset-0 z-[2000] bg-sky-500 flex items-center justify-center p-4 hidden">
+        <!-- Thêm nút đóng X để người dùng thoát bảng nếu lỡ bấm nhầm -->
+        <button onclick="document.getElementById('login-screen').classList.add('hidden')" class="absolute top-5 right-5 text-white text-4xl font-bold">×</button>
+        <div class="comic-border p-8 max-w-md w-full text-center space-y-4">
+            <h1 class="text-3xl text-blue-700" style="font-family: 'Bangers'">THỔI CHUỖI CÙNG NHAU</h1>
+            <p class="font-bold italic text-sm text-gray-700">Chọn Avatar, tên và password duy nhất cho suốt hành trình!</p>
+            <div class="flex justify-around border-b-2 border-black mb-4">
                 <div id="tab-reg" class="tab-btn active" onclick="switchTab('reg')">ĐĂNG KÝ</div>
                 <div id="tab-login" class="tab-btn" onclick="switchTab('login')">ĐĂNG NHẬP</div>
             </div>
             <div id="form-reg" class="space-y-4">
                 <div class="grid grid-cols-3 gap-2">
-                    <div class="ava-box selected" onclick="pickAva(this, 'avatar1.jpg')"><img src="avatar1.jpg" class="h-10 mx-auto"></div>
-                    <div class="ava-box" onclick="pickAva(this, 'avatar2.jpg')"><img src="avatar2.jpg" class="h-10 mx-auto"></div>
-                    <div class="ava-box flex items-center justify-center border-2 border-dashed" onclick="document.getElementById('uploadAva').click()">
-                        <div id="pre-view" class="text-[8px] font-bold">ẢNH RIÊNG</div>
+                    <div class="ava-box selected" onclick="pickAva(this, 'avatar1.jpg')"><img src="avatar1.jpg" class="h-10 mx-auto"><p class="text-[8px] font-bold">Avatar mẫu 1</p></div>
+                    <div class="ava-box" onclick="pickAva(this, 'avatar2.jpg')"><img src="avatar2.jpg" class="h-10 mx-auto"><p class="text-[8px] font-bold">Avatar mẫu 2</p></div>
+                    <div class="ava-box flex flex-col justify-center border-2 border-dashed border-gray-400 overflow-hidden" style="height: 60px;" onclick="document.getElementById('uploadAva').click()">
+                        <div id="pre-view" class="w-full h-full flex items-center justify-center"><div class="text-[8px] font-bold uppercase">Ảnh riêng</div></div>
                         <input type="file" id="uploadAva" class="hidden" accept="image/*" onchange="handleUpload(this)">
                     </div>
                 </div>
-                <input type="text" id="reg-nick" class="w-full border-4 border-black p-2 rounded-xl text-center font-black uppercase" placeholder="TÊN CỦA BẠN...">
-                <input type="password" id="reg-pass" class="w-full border-4 border-black p-2 rounded-xl text-center font-black" placeholder="MẬT KHẨU...">
-                <button onclick="handleAuth('register')" class="btn-comic w-full text-xl uppercase italic">BẮT ĐẦU NGAY</button>
+                <input type="text" id="reg-nick" class="w-full border-4 border-black p-2 rounded-xl text-center font-black uppercase" placeholder="TÊN TỰ CHỌN CỦA BẠN...">
+                <input type="password" id="reg-pass" class="w-full border-4 border-black p-2 rounded-xl text-center font-black" placeholder="MẬT KHẨU TỰ CHỌN...">
+                <button onclick="handleAuth('register')" class="btn-comic w-full text-xl uppercase italic">BẮT ĐẦU THỔI CHUỖI</button>
             </div>
             <div id="form-login" class="hidden space-y-4">
-                <input type="text" id="login-nick" class="w-full border-4 border-black p-3 rounded-xl text-center font-black uppercase" placeholder="TÊN ĐÃ ĐĂNG KÝ">
-                <input type="password" id="login-pass" class="w-full border-4 border-black p-3 rounded-xl text-center font-black" placeholder="MẬT KHẨU...">
+                <input type="text" id="login-nick" class="w-full border-4 border-black p-3 rounded-xl text-center font-black uppercase" placeholder="TÊN CỪU ĐÃ THỔI DAY 1">
+                <input type="password" id="login-pass" class="w-full border-4 border-black p-3 rounded-xl text-center font-black" placeholder="NHẬP MẬT KHẨU...">
+                <p class="font-bold italic text-sm text-gray-700">Quên tên và password, hãy liên hệ admin hệ thống!</p>
                 <button onclick="handleAuth('login')" class="btn-comic w-full text-xl uppercase italic">VÀO HÀNH TRÌNH</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL LUẬT CHƠI -->
+    <!-- LUẬT CHƠI -->
     <div id="guide-modal" class="modal-overlay">
-        <div class="modal-content">
-            <button onclick="toggleModal('guide-modal')" class="absolute top-4 right-4 text-2xl font-bold">×</button>
-            <h2 class="text-2xl font-black text-blue-600 mb-4" style="font-family: 'Bangers'">🐑 LUẬT THỔI CHUỖI</h2>
-            <div class="text-left space-y-3 text-sm font-bold text-gray-700 bg-blue-50 p-5 rounded-2xl border-2 border-black mb-6 italic">
-                <p>• Mỗi ngày báo danh 1 lần → <b>+1 Streak</b>.</p>
-                <p>• 30 người cùng báo danh → <b>+1 Streak Nhóm</b>.</p>
-                <p>• Quên 1 ngày → <b>Bị Đóng Băng</b>.</p>
-                <p>• Phá băng bằng cách bấm <b>KHÔI PHỤC</b>.</p>
+        <div class="modal-content scale-90 opacity-0 transition-all duration-500">
+            <h2 class="text-2xl font-black text-blue-600 mb-4" style="font-family: 'Bangers'">🐑 LUẬT THỔI CHUỖI CÙNG NHAU</h2>
+            <div class="text-left space-y-3 text-sm font-bold text-gray-700 bg-blue-50 p-5 rounded-2xl border-2 border-black mb-6 italic leading-relaxed">
+                <p>• Mỗi ngày Cừu báo danh 1 lần → <b>+1 Streak cá nhân</b>.</p>
+                <p>• 30 cừu báo danh cùng ngày → <b>+1 Streak Nhóm</b>.</p>
+                <p>• Không báo danh 1 ngày → <b>Hành trình đóng băng</b>.</p>
+                <p>• Phá băng bằng cách bấm KHÔI PHỤC (Cộng 1 Streak bù, sau đó cần báo danh tiếp để + streak hôm đó).</p>
+                <p>• Hãy nhớ Tên và Mật khẩu để đăng nhập lần sau!</p>
             </div>
-            <button onclick="toggleModal('guide-modal')" class="btn-comic w-full text-2xl uppercase italic">ĐÃ HIỂU 🔥</button>
+            <button onclick="enterMainGame()" class="btn-comic w-full text-2xl uppercase italic">ĐÃ HIỂU & VÀO GAME 🔥</button>
         </div>
     </div>
 
-    <!-- WIDGET CHUỖI NHÓM -->
-    <div id="group-widget" class="group-status">
-        <div class="comic-border p-4 bg-orange-400 border-black">
+    <!-- CÁC MODAL KHÁC GIỮ NGUYÊN -->
+    <div id="today-modal" class="modal-overlay" onclick="closeTodayList()">
+        <div class="modal-content max-w-lg" onclick="event.stopPropagation()"><h2 class="text-2xl font-black text-orange-600 mb-4" style="font-family: 'Bangers'">CỪU ĐÃ THỔI HÔM NAY</h2><div id="today-sheep-list" class="grid grid-cols-4 gap-3 max-h-[400px] overflow-y-auto p-2"></div><button onclick="closeTodayList()" class="btn-comic mt-6 mx-auto">ĐÓNG</button></div>
+    </div>
+
+    <div id="group-widget" class="group-status hidden">
+        <div class="comic-border p-4 bg-orange-400 border-black shadow-[4px_4px_0px_#000]">
             <p class="text-[10px] font-black uppercase text-white mb-1 text-center">Chuỗi Nhóm 🔥</p>
             <div id="group-streak-val" class="text-4xl font-black text-white italic text-center mb-2" style="font-family: 'Bangers'">0 DAYS</div>
-            <div class="bg-white/30 p-2 rounded-xl border-2 border-black text-center">
-                <div class="w-full h-3 bg-gray-200 border border-black rounded-full overflow-hidden"><div id="group-bar" class="h-full bg-green-500" style="width: 0%"></div></div>
-                <p class="text-[10px] font-black text-black mt-1 uppercase">Hôm nay: <span id="group-count-val">0/30</span></p>
+            <div class="bg-white/30 p-2 rounded-xl border-2 border-black text-center cursor-pointer" onclick="openTodayList()">
+                <div class="w-full h-3 bg-gray-200 border border-black rounded-full overflow-hidden"><div id="group-bar" class="h-full bg-green-500 transition-all duration-700" style="width: 0%"></div></div>
+                <p class="text-[10px] font-black text-black mt-1 uppercase">Hôm nay: <span id="group-count-val">0/30</span> (Xem 🔍)</p>
             </div>
+        </div>
+    </div>
+
+    <div id="congrats-modal" class="modal-overlay">
+        <div class="modal-content text-center">
+            <h2 class="text-5xl mb-4 text-yellow-500" style="font-family: 'Bangers'">TUYỆT VỜI!</h2>
+            <div id="congrats-badge-icon" class="text-7xl mb-4">🥉</div>
+            <p id="congrats-text" class="text-xl font-black uppercase mb-6"></p>
+            <button onclick="document.getElementById('congrats-modal').style.display='none'" class="btn-comic w-full text-2xl">TIẾP TỤC</button>
         </div>
     </div>
 
     <script>
         const APP_URL = "https://script.google.com/macros/s/AKfycbzaweJEVbL_BVMVMCwquOkqn9rmK5a-FBkY8DXytylcoKrJ20LMHmTby_TOiAemtgFFAA/exec"; 
-        let myNick = localStorage.getItem('sheep_nick') || "", 
-            myPass = localStorage.getItem('sheep_pass') || "", 
-            myAva = "avatar1.jpg", allUsers = [];
-
-        function toggleModal(id) {
-            const modal = document.getElementById(id);
-            modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
-        }
+        let myNick = "", myPass = "", myAva = "avatar1.jpg", allUsers = [];
+        let milestonesAchieved = JSON.parse(localStorage.getItem('achievements') || '[]');
 
         function switchTab(type) {
             document.getElementById('form-reg').classList.toggle('hidden', type === 'login');
@@ -189,46 +213,83 @@
             document.getElementById('tab-login').classList.toggle('active', type === 'login');
         }
 
-        function pickAva(el, url) { 
-            document.querySelectorAll('.ava-box').forEach(x => x.classList.remove('selected')); 
-            el.classList.add('selected'); myAva = url; 
-        }
-
+        function pickAva(el, url) { document.querySelectorAll('.ava-box').forEach(x => x.classList.remove('selected')); el.classList.add('selected'); myAva = url; }
+        
         function handleUpload(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     myAva = e.target.result;
                     document.getElementById('pre-view').innerHTML = `<img src="${myAva}" class="w-full h-full object-cover rounded-lg">`;
+                    const parentBox = input.closest('.ava-box');
+                    document.querySelectorAll('.ava-box').forEach(x => x.classList.remove('selected'));
+                    parentBox.classList.add('selected');
                 };
                 reader.readAsDataURL(input.files[0]);
             }
         }
 
         async function handleAuth(type) {
-            const nickInput = document.getElementById(type === 'register' ? 'reg-nick' : 'login-nick');
-            const passInput = document.getElementById(type === 'register' ? 'reg-pass' : 'login-pass');
-            myNick = nickInput.value.trim().toUpperCase();
-            myPass = passInput.value.trim();
-            
+            myNick = document.getElementById(type === 'register' ? 'reg-nick' : 'login-nick').value.trim().toUpperCase();
+            myPass = document.getElementById(type === 'register' ? 'reg-pass' : 'login-pass').value.trim();
             if(!myNick || !myPass) return alert("Vui lòng nhập Tên và Mật khẩu!");
 
+            const btn = document.querySelector(type === 'register' ? '#form-reg button' : '#form-login button');
+            const oldText = btn.innerText;
+            btn.innerText = "XỬ LÝ..."; btn.disabled = true;
+
             try {
-                const res = await fetch(APP_URL, { method: 'POST', body: JSON.stringify({ action: type, nickname: myNick, password: myPass, avatar: myAva }) });
-                const result = await res.json();
-                if(result.status === 'success') {
-                    localStorage.setItem('sheep_nick', myNick);
-                    localStorage.setItem('sheep_pass', myPass);
-                    alert("Thành công!");
-                    toggleModal('login-screen');
-                    sync();
-                } else { alert(result.msg); }
-            } catch(e) { alert("Lỗi kết nối!"); }
+                if(type === 'register') {
+                    const res = await fetch(APP_URL); const data = await res.json();
+                    if(data.users.find(u => u.nickname.toUpperCase() === myNick)) {
+                        alert("Tên này đã được đăng ký!"); btn.innerText = oldText; btn.disabled = false; return;
+                    }
+                    localStorage.setItem('sheep_nick', myNick); localStorage.setItem('sheep_pass', myPass);
+                    showGuide();
+                } else {
+                    const res = await fetch(APP_URL, { method: 'POST', body: JSON.stringify({ action: 'login', nickname: myNick, password: myPass }) });
+                    const result = await res.json();
+                    if(result.status === 'success') {
+                        myAva = result.avatar; localStorage.setItem('sheep_nick', myNick); localStorage.setItem('sheep_pass', myPass);
+                        showGuide();
+                    } else { alert(result.msg); btn.innerText = oldText; btn.disabled = false; }
+                }
+            } catch(e) { alert("Lỗi mạng!"); btn.innerText = oldText; btn.disabled = false; }
+        }
+
+        function showGuide() {
+            document.getElementById('login-screen').classList.add('hidden');
+            const modal = document.getElementById('guide-modal');
+            modal.style.display = 'flex';
+            setTimeout(() => { modal.querySelector('.modal-content').classList.remove('scale-90', 'opacity-0'); }, 10);
+        }
+
+        function enterMainGame() {
+            document.getElementById('guide-modal').style.display = 'none';
+            document.getElementById('group-widget').classList.remove('hidden');
+            document.getElementById('user-nick-header').innerText = myNick;
+            document.getElementById('user-ava-header').src = myAva;
+            sync(); initDraggable();
+            document.getElementById('bgm').play().catch(() => {});
+        }
+
+        window.onload = () => {
+            initMap();
+            const sn = localStorage.getItem('sheep_nick'), sp = localStorage.getItem('sheep_pass');
+            if(sn && sp) { 
+                document.getElementById('login-nick').value = sn; 
+                document.getElementById('login-pass').value = sp; 
+                myNick = sn; myPass = sp;
+                enterMainGame();
+            } else {
+                // Nếu chưa login thì hiện bảng login
+                document.getElementById('login-screen').classList.remove('hidden');
+            }
+            setInterval(sync, 20000);
         }
 
         function initMap() {
-            const map = document.getElementById('game-map'); 
-            map.innerHTML = `<img id="player-pawn" src="${myAva}">`;
+            const map = document.getElementById('game-map'); map.innerHTML = `<img id="player-pawn" src="avatar1.jpg">`;
             for (let i = 1; i <= 60; i++) {
                 const tile = document.createElement('div'); tile.id = `tile-${i}`;
                 tile.className = "map-tile " + ([10,20,30,40,50,60].includes(i) ? "milestone" : "");
@@ -238,60 +299,104 @@
 
         async function sync() {
             try {
-                const res = await fetch(APP_URL); 
-                const data = await res.json(); 
-                allUsers = data.users;
-                
+                const res = await fetch(APP_URL); const data = await res.json(); allUsers = data.users;
                 document.getElementById('group-streak-val').innerText = `${data.groupStreak} DAYS`;
                 document.getElementById('group-count-val').innerText = `${data.activeToday}/30`;
                 document.getElementById('group-bar').style.width = Math.min((data.activeToday / 30) * 100, 100) + '%';
-                
                 const grid = document.getElementById('farm-grid'); grid.innerHTML = '';
                 data.users.sort((a,b) => b.streak - a.streak).forEach(u => {
                     grid.innerHTML += `<div class="sheep-card"><img src="${u.avatar}"><p class="name">${u.nickname}</p><p class="streak">${u.streak}D 🔥</p></div>`;
                 });
-
-                if(myNick) {
-                    const me = data.users.find(u => u.nickname.toUpperCase() === myNick.toUpperCase());
-                    if(me) {
-                        document.getElementById('user-nick-header').innerText = me.nickname;
-                        document.getElementById('user-ava-header').src = me.avatar;
-                        document.getElementById('user-streak').innerText = `${me.streak} DAYS 🔥`;
-                        movePawn(me.streak);
-                        document.getElementById('alert-broken').classList.toggle('hidden', !me.isBroken);
+                const me = data.users.find(u => u.nickname.toUpperCase() === myNick);
+                if(me) {
+                    document.getElementById('user-nick-header').innerText = me.nickname;
+                    document.getElementById('user-ava-header').src = me.avatar;
+                    document.getElementById('player-pawn').src = me.avatar;
+                    document.getElementById('user-streak').innerText = `${me.streak} DAYS 🔥`;
+                    movePawn(me.streak); checkMilestones(me.streak);
+                    if (me.isBroken) {
+                        document.getElementById('alert-broken').classList.remove('hidden');
+                        document.getElementById('map-container').classList.add('broken-mode');
+                        document.getElementById('action-box').classList.add('broken-mode');
+                    } else {
+                        document.getElementById('alert-broken').classList.add('hidden');
+                        document.getElementById('map-container').classList.remove('broken-mode');
+                        document.getElementById('action-box').classList.remove('broken-mode');
                     }
                 }
             } catch(e) {}
         }
 
+        async function doAction(type) {
+            const amtId = type === 'submit' ? 'amt' : 'amt-broken';
+            const billId = type === 'submit' ? 'bill' : 'bill-broken';
+            const amt = document.getElementById(amtId).value;
+            const billFile = document.getElementById(billId).files[0];
+            if(!myNick) return alert("Vui lòng đăng nhập!");
+            if(!amt || !billFile) return alert("Nhập đầy đủ tiền và bill!");
+            const btn = type === 'submit' ? document.getElementById('btnSubmit') : document.getElementById('btnRestore');
+            btn.disabled = true; btn.innerText = "XỬ LÝ...";
+            let proof = await new Promise(r => { const f = new FileReader(); f.readAsDataURL(billFile); f.onload = () => r(f.result); });
+            try {
+                const res = await fetch(APP_URL, { method: 'POST', body: JSON.stringify({ action: type, nickname: myNick, password: myPass, amount: amt, proof: proof, avatar: myAva }) });
+                const result = await res.json();
+                if(result.status === 'success') { alert(type === 'submit' ? "Báo danh thành công!" : "Đã DNT bù!"); sync(); }
+                else { alert(result.msg); }
+            } catch(e) { alert("Lỗi mạng!"); }
+            btn.disabled = false; btn.innerText = type === 'submit' ? "Gửi báo danh 🔥" : "XÁC NHẬN BÙ & PHÁ BĂNG 🆘";
+        }
+
         function movePawn(step) {
-            const target = document.getElementById(`tile-${Math.min(step || 1, 60)}`), pawn = document.getElementById('player-pawn');
+            const target = document.getElementById(`tile-${Math.min(step, 60)}`), pawn = document.getElementById('player-pawn');
             if (!target || !pawn) return;
             const mapRect = document.getElementById('game-map').getBoundingClientRect(), rect = target.getBoundingClientRect();
             pawn.style.left = `${rect.left - mapRect.left + (rect.width/2) - 27}px`;
             pawn.style.top = `${rect.top - mapRect.top + (rect.height/2) - 27}px`;
-            for(let i=1; i<=60; i++) document.getElementById(`tile-${i}`).classList.toggle('active', i <= step);
+            for(let i=1; i<=60; i++) {
+                const t = document.getElementById(`tile-${i}`);
+                if(t) t.classList.toggle('active', i <= step);
+            }
         }
 
-        async function doAction(type) {
-            const amt = document.getElementById(type === 'submit' ? 'amt' : 'amt-broken').value;
-            const billFile = document.getElementById(type === 'submit' ? 'bill' : 'bill-broken').files[0];
-            if(!myNick) return alert("Hãy đăng nhập trước!");
-            if(!amt || !billFile) return alert("Nhập đủ tiền và tải bill!");
-
-            let proof = await new Promise(r => { const f = new FileReader(); f.readAsDataURL(billFile); f.onload = () => r(f.result); });
-            try {
-                const res = await fetch(APP_URL, { method: 'POST', body: JSON.stringify({ action: type, nickname: myNick, password: myPass, amount: amt, proof: proof }) });
-                const result = await res.json();
-                alert(result.msg); sync();
-            } catch(e) { alert("Lỗi!"); }
+        function checkMilestones(streak) {
+            const levels = { 10: "🥉", 20: "🥈", 30: "🥇", 40: "🎖️", 50: "🚀", 60: "👑" };
+            Object.keys(levels).forEach(m => {
+                if(streak >= m) {
+                    const badge = document.getElementById(`b${m}`);
+                    if(badge) badge.classList.add('unlocked');
+                    if(!milestonesAchieved.includes(m)) {
+                        confetti({ particleCount: 150, spread: 70 });
+                        document.getElementById('congrats-badge-icon').innerText = levels[m];
+                        document.getElementById('congrats-text').innerText = `BẠN ĐÃ ĐẠT CHUỖI ${m} NGÀY!`;
+                        document.getElementById('congrats-modal').style.display = 'flex';
+                        document.getElementById('sfx-win').play();
+                        milestonesAchieved.push(m); localStorage.setItem('achievements', JSON.stringify(milestonesAchieved));
+                    }
+                }
+            });
         }
 
-        window.onload = () => {
-            initMap(); sync(); setInterval(sync, 30000);
-            if(!localStorage.getItem('sheep_nick')) toggleModal('login-screen');
-            document.getElementById('bgm').play().catch(() => {});
+        function initDraggable() {
+            const el = document.getElementById("group-widget");
+            let p1=0, p2=0, p3=0, p4=0;
+            el.onmousedown = start; el.ontouchstart = start;
+            function start(e) { p3 = e.clientX || e.touches[0].clientX; p4 = e.clientY || e.touches[0].clientY; document.onmouseup=end; document.ontouchend=end; document.onmousemove=move; document.ontouchmove=move; }
+            function move(e) {
+                const cx = e.clientX || (e.touches ? e.touches[0].clientX : 0); const cy = e.clientY || (e.touches ? e.touches[0].clientY : 0);
+                p1 = p3 - cx; p2 = p4 - cy; p3 = cx; p4 = cy;
+                el.style.top = (el.offsetTop - p2) + "px"; el.style.left = (el.offsetLeft - p1) + "px"; el.style.bottom = "auto";
+            }
+            function end() { document.onmouseup=null; document.onmousemove=null; document.ontouchend=null; document.ontouchmove=null; }
         }
+        function openTodayList() {
+            const listDiv = document.getElementById('today-sheep-list'); listDiv.innerHTML = '';
+            const today = new Date().toLocaleDateString('en-CA');
+            const todaySheep = allUsers.filter(u => u.lastUpdate && u.lastUpdate.split('T')[0] === today && u.isReportedToday);
+            if(!todaySheep.length) listDiv.innerHTML = '<p class="col-span-4 text-gray-400 italic py-4 text-center">Chưa có ai thổi hôm nay...</p>';
+            todaySheep.forEach(s => listDiv.innerHTML += `<div class="flex flex-col items-center"><img src="${s.avatar}" class="w-12 h-12 rounded-full border-2 border-black object-cover"><p class="text-[8px] font-bold uppercase mt-1 truncate w-full text-center">${s.nickname}</p></div>`);
+            document.getElementById('today-modal').style.display = 'flex';
+        }
+        function closeTodayList() { document.getElementById('today-modal').style.display = 'none'; }
     </script>
 </body>
 </html>
