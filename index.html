@@ -175,29 +175,31 @@
         </div>
     </div>
 
-<!-- DANH SÁCH NGÀY (MODAL TỐI ƯU) -->
-<div id="today-modal" class="modal-overlay" onclick="closeTodayList()">
-    <div class="modal-content max-w-lg flex flex-col" style="max-height: 80vh;" onclick="event.stopPropagation()">
+<!-- DANH SÁCH NGÀY (PHIÊN BẢN FIX NÚT ĐÓNG) -->
+<div id="today-modal" class="modal-overlay" style="z-index: 9999;">
+    <div class="modal-content max-w-lg flex flex-col" style="max-height: 85vh; position: relative; z-index: 10000;" onclick="event.stopPropagation()">
         
         <h2 class="text-2xl font-black text-orange-600 mb-4 shrink-0" style="font-family: 'Bangers'">
             CỪU ĐÃ THỔI HÔM NAY
         </h2>
 
-        <!-- Khu vực danh sách có thể cuộn -->
-        <div id="today-sheep-list" class="grid grid-cols-4 gap-4 overflow-y-auto p-4 bg-gray-900/5 rounded-2xl mb-4" style="flex-grow: 1;">
-            <!-- Danh sách cừu sẽ hiện ở đây -->
+        <!-- Danh sách cừu -->
+        <div id="today-sheep-list" class="grid grid-cols-4 gap-4 overflow-y-auto p-4 bg-gray-100 rounded-2xl mb-4" style="flex-grow: 1; -webkit-overflow-scrolling: touch;">
+            <!-- Render cừu ở đây -->
         </div>
 
-        <!-- Nút đóng nằm dưới cùng, cố định -->
-        <div class="shrink-0">
-            <button onclick="closeTodayList()" class="btn-comic !bg-red-500 w-full text-xl py-3 shadow-[0_4px_0_#000]">
+        <!-- Nút đóng (Đã tách riêng và ép Z-index cao nhất) -->
+        <div class="pt-2 shrink-0">
+            <button type="button" 
+                    onclick="closeTodayList()" 
+                    class="btn-comic !bg-red-600 w-full text-2xl py-4" 
+                    style="position: relative; z-index: 10001; cursor: pointer !important;">
                 ĐÓNG
             </button>
         </div>
         
     </div>
 </div>
-
     <!-- WIDGET CHUỖI NHÓM -->
     <div id="group-widget" class="group-status hidden">
         <div class="comic-border p-4 bg-orange-400 border-black shadow-[4px_4px_0px_#000]">
@@ -404,31 +406,38 @@
             }
             function end() { document.onmouseup=null; document.onmousemove=null; document.ontouchend=null; document.ontouchmove=null; }
         }
-     function openTodayList() {
+   function openTodayList() {
+    console.log("Đang mở danh sách...");
     const listDiv = document.getElementById('today-sheep-list');
+    if(!listDiv) return;
+    
     listDiv.innerHTML = '';
 
-    // Lọc những người mà Backend đã đánh dấu là isReportedToday = true
+    // Lọc những người đã báo danh (Dựa trên biến isReportedToday từ Backend)
     const todaySheep = allUsers.filter(u => u.isReportedToday === true);
 
     if (todaySheep.length === 0) {
-        listDiv.innerHTML = '<p class="col-span-4 text-gray-400 italic py-4 text-center w-full">Chưa có ai thổi chuỗi hôm nay...</p>';
+        listDiv.innerHTML = '<p class="col-span-4 text-gray-400 italic py-10 text-center w-full">Chưa có ai thổi chuỗi hôm nay...</p>';
     } else {
         todaySheep.forEach(s => {
             listDiv.innerHTML += `
-                <div class="flex flex-col items-center bg-white p-2 rounded-xl border border-black/5 shadow-sm">
-                    <img src="${s.avatar}" class="w-12 h-12 rounded-full border-2 border-black object-cover">
-                    <p class="text-[8px] font-bold uppercase mt-1 truncate w-full text-center">${s.nickname}</p>
+                <div class="flex flex-col items-center bg-white p-2 rounded-xl border border-black/10">
+                    <img src="${s.avatar || 'avatar1.jpg'}" class="w-12 h-12 rounded-full border-2 border-black object-cover">
+                    <p class="text-[9px] font-black uppercase mt-2 truncate w-full text-center">${s.nickname}</p>
                 </div>`;
         });
     }
-    document.getElementById('today-modal').style.display = 'flex';
+    
+    // Hiện modal bằng Flex
+    document.getElementById('today-modal').style.setProperty('display', 'flex', 'important');
 }
-   function closeTodayList() {
-    // Ẩn modal
-    document.getElementById('today-modal').style.display = 'none';
-    // Reset lại thanh cuộn của danh sách lên đầu cho lần sau
-    document.getElementById('today-sheep-list').scrollTop = 0;
+
+function closeTodayList() {
+    console.log("Đang bấm nút ĐÓNG...");
+    const modal = document.getElementById('today-modal');
+    if(modal) {
+        modal.style.setProperty('display', 'none', 'important');
+    }
 }
     </script>
 </body>
