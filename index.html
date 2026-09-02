@@ -386,15 +386,34 @@
             }
             function end() { document.onmouseup=null; document.onmousemove=null; document.ontouchend=null; document.ontouchmove=null; }
         }
-        function openTodayList() {
-            const listDiv = document.getElementById('today-sheep-list'); listDiv.innerHTML = '';
-            const today = new Date().toLocaleDateString('en-CA');
-            const todaySheep = allUsers.filter(u => u.lastUpdate && u.lastUpdate.split('T')[0] === today && u.isReportedToday);
-            if(!todaySheep.length) listDiv.innerHTML = '<p class="col-span-4 text-gray-400 italic py-4 text-center">Chưa có ai thổi chuỗi hôm nay...</p>';
-            todaySheep.forEach(s => listDiv.innerHTML += `<div class="flex flex-col items-center"><img src="${s.avatar}" class="w-12 h-12 rounded-full border-2 border-black object-cover"><p class="text-[8px] font-bold uppercase mt-1 truncate w-full text-center">${s.nickname}</p></div>`);
-            document.getElementById('today-modal').style.display = 'flex';
-        }
-        function closeTodayList() { document.getElementById('today-modal').style.display = 'none'; }
+       function openTodayList() {
+    const listDiv = document.getElementById('today-sheep-list');
+    listDiv.innerHTML = '';
+
+    // Lọc những người có cờ isReportedToday là true (do server xác định)
+    // Nếu server không trả về cờ này, ta mới dùng đến so sánh ngày
+    const todaySheep = allUsers.filter(u => {
+        if (u.isReportedToday === true || u.isReportedToday === "TRUE") return true;
+        
+        // Sửa lỗi so sánh ngày: chuyển cả 2 về cùng định dạng YYYY-MM-DD
+        const userDate = u.lastUpdate ? u.lastUpdate.split('T')[0] : "";
+        const clientDate = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+        return userDate === clientDate;
+    });
+
+    if (!todaySheep.length) {
+        listDiv.innerHTML = '<p class="col-span-4 text-gray-400 italic py-4 text-center">Chưa có ai thổi chuỗi hôm nay...</p>';
+    } else {
+        todaySheep.forEach(s => {
+            listDiv.innerHTML += `
+                <div class="flex flex-col items-center">
+                    <img src="${s.avatar}" class="w-12 h-12 rounded-full border-2 border-black object-cover">
+                    <p class="text-[8px] font-bold uppercase mt-1 truncate w-full text-center">${s.nickname}</p>
+                </div>`;
+        });
+    }
+    document.getElementById('today-modal').style.display = 'flex';
+}
     </script>
 </body>
 </html>
