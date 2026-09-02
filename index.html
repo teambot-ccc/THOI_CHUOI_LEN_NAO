@@ -175,10 +175,28 @@
         </div>
     </div>
 
-    <!-- DANH SÁCH NGÀY -->
-    <div id="today-modal" class="modal-overlay" onclick="closeTodayList()">
-        <div class="modal-content max-w-lg" onclick="event.stopPropagation()"><h2 class="text-2xl font-black text-orange-600 mb-4" style="font-family: 'Bangers'">CỪU ĐÃ THỔI HÔM NAY</h2><div id="today-sheep-list" class="grid grid-cols-4 gap-3 max-h-[400px] overflow-y-auto p-2"></div><button onclick="closeTodayList()" class="btn-comic mt-6 mx-auto">ĐÓNG</button></div>
+<!-- DANH SÁCH NGÀY (MODAL TỐI ƯU) -->
+<div id="today-modal" class="modal-overlay" onclick="closeTodayList()">
+    <div class="modal-content max-w-lg flex flex-col" style="max-height: 80vh;" onclick="event.stopPropagation()">
+        
+        <h2 class="text-2xl font-black text-orange-600 mb-4 shrink-0" style="font-family: 'Bangers'">
+            CỪU ĐÃ THỔI HÔM NAY
+        </h2>
+
+        <!-- Khu vực danh sách có thể cuộn -->
+        <div id="today-sheep-list" class="grid grid-cols-4 gap-4 overflow-y-auto p-4 bg-gray-900/5 rounded-2xl mb-4" style="flex-grow: 1;">
+            <!-- Danh sách cừu sẽ hiện ở đây -->
+        </div>
+
+        <!-- Nút đóng nằm dưới cùng, cố định -->
+        <div class="shrink-0">
+            <button onclick="closeTodayList()" class="btn-comic !bg-red-500 w-full text-xl py-3 shadow-[0_4px_0_#000]">
+                ĐÓNG
+            </button>
+        </div>
+        
     </div>
+</div>
 
     <!-- WIDGET CHUỖI NHÓM -->
     <div id="group-widget" class="group-status hidden">
