@@ -14,45 +14,61 @@
         .comic-border { border: 5px solid #000; box-shadow: 8px 8px 0px #000; border-radius: 30px; background: white; }
         .btn-comic { background: #ef4444; color: white; border: 3px solid #000; font-family: 'Bangers'; padding: 12px 20px; box-shadow: 0 5px 0 #000; border-radius: 20px; transition: 0.2s; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-comic:active { transform: translateY(4px); box-shadow: 0 1px 0 #000; }
+        
         .broken-mode { filter: grayscale(1); pointer-events: none; opacity: 0.6; }
         .ava-box { border: 4px solid transparent; border-radius: 20px; cursor: pointer; transition: 0.3s; padding: 5px; background: #f8fafc; text-align: center; }
         .ava-box.selected { border-color: #3b82f6; background: #dbeafe; transform: scale(1.05); }
+
         .tab-btn { padding: 10px; font-family: 'Bangers'; font-size: 1.2rem; cursor: pointer; border-bottom: 4px solid transparent; transition: 0.3s; }
         .tab-btn.active { border-color: #ef4444; color: #ef4444; }
-        
+
         #game-map { display: grid; grid-template-columns: repeat(auto-fill, minmax(55px, 1fr)); gap: 10px; padding: 20px; position: relative; }
         .map-tile { aspect-ratio: 1; border: 2px solid #000; border-radius: 12px; background: rgba(255,255,255,0.8); display: flex; align-items: center; justify-content: center; font-family: 'Bangers'; font-size: 1.2rem; }
         .map-tile.active { background: #fef08a; border-color: #f59e0b; color: #b45309; }
         .map-tile.milestone { background: #fee2e2; border-color: #ef4444; color: #ef4444; }
+        
         #player-pawn { position: absolute; width: 55px; height: 55px; z-index: 100; transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); border: 3px solid #000; border-radius: 50%; background: white; object-fit: cover; }
         .group-status { position: fixed; bottom: 20px; left: 20px; z-index: 1000; width: 220px; cursor: move; user-select: none; touch-action: none; }
+
         .farm-bg { background-image: url('nenuutu.jpg'); background-size: cover; background-position: center; border: 6px solid #4d2c19; height: 500px; border-radius: 25px; position: relative; display: flex; flex-direction: column; overflow: hidden; box-shadow: inset 0 0 50px rgba(0,0,0,0.3); }
         #farm-grid { overflow-y: auto; padding: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; align-content: start; flex-grow: 1; }
         .sheep-card { background: rgba(255, 255, 255, 0.9); border: 2px solid #000; border-radius: 15px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; text-align: center; box-shadow: 3px 3px 0px #000; height: fit-content; transition: transform 0.2s; }
         .sheep-card img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #000; object-fit: cover; background: #fff; }
         .sheep-card p.name { font-size: 9px; font-weight: 900; margin-top: 4px; text-transform: uppercase; color: #1e40af; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .sheep-card p.streak { font-size: 10px; color: #ef4444; font-weight: 800; margin-top: 2px; }
+
         .badge-item { width: 35px; height: 35px; border-radius: 50%; border: 2px dashed #999; display: flex; align-items: center; justify-content: center; filter: grayscale(1); font-size: 16px; background: #f1f5f9; }
         .badge-item.unlocked { border: 2px solid #000; background: #fff; filter: grayscale(0); box-shadow: 2px 2px 0 #000; transform: scale(1.1); }
+        
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 3000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         .modal-content { background: white; border: 6px solid #000; border-radius: 40px; padding: 30px; text-align: center; max-width: 450px; width: 100%; position: relative; }
+        .floating { animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
     </style>
 </head>
 <body>
+    <audio id="sfx-win" src="nhacnenmodau.mp3"></audio>
     <audio id="bgm" loop src="nhacnenmodau.mp3"></audio>
 
+    <!-- MENU GỐC: KHÔNG ĐỔI -->
     <nav class="max-w-7xl mx-auto p-4 mt-2">
         <div class="comic-border bg-white flex flex-wrap items-center justify-between px-6 py-3 gap-4">
-            <a href="/" class="text-xl font-black italic text-blue-700" style="font-family: 'Bangers'"><i class="fas fa-rocket mr-2"></i>NHỮNG CON BOT CỦA CAPTAIN BOY</a>
+            <a href="/" class="text-xl font-black italic text-blue-700" style="font-family: 'Bangers'">
+                <i class="fas fa-rocket mr-2"></i>NHỮNG CON BOT CỦA CAPTAIN BOY
+            </a>
             <div class="flex flex-wrap gap-4 text-[11px] font-black uppercase italic">
-                <a href="/" class="hover:text-blue-500 transition"><i class="fas fa-home"></i> TRANG CHỦ</a>
-                <a href="/thoi-chuoi" class="text-orange-600 border-b-2 border-orange-600"><i class="fas fa-link"></i> THỔI CHUỖI CÙNG NHAU</a>
-                <a href="/social-chien-tich/index.html"><i class="fas fa-award"></i> CHIẾN TÍCH</a>
+                <a href="/" class="hover:text-blue-500 transition"><i class="fas fa-home mr-1"></i> TRANG CHỦ</a>
+                <a href="/CAPTAIN-BOY/tieu-su-2/" class="hover:text-blue-500 transition"><i class="fas fa-star mr-1"></i> CAPTAIN BOY</a>
+                <a href="/thoi-chuoi" class="text-orange-600 border-b-2 border-orange-600"><i class="fas fa-link mr-1"></i> THỔI CHUỖI CÙNG NHAU</a>
+                <a href="/social-chien-tich/index.html" class="hover:text-blue-500 transition"><i class="fas fa-award mr-1"></i> CHIẾN TÍCH</a>
+                <a href="/stream-youtube/" class="hover:text-blue-500 transition"><i class="fas fa-video mr-1"></i> STREAM</a>
+                <a href="/dinh-nghia-tam-quan-trong-cua-social/" class="hover:text-blue-500 transition"><i class="fas fa-share-alt mr-1"></i> SOCIAL</a>
+                <a href="/gioi-thieu/" class="hover:text-blue-500 transition"><i class="fas fa-address-card mr-1"></i> ABOUT ME</a>
             </div>
         </div>
     </nav>
 
-    <!-- UI CHÍNH -->
+    <!-- UI CHÍNH: KHÔNG ĐỔI -->
     <div id="main-ui" class="hidden max-w-7xl mx-auto p-4 space-y-6">
         <header class="flex flex-wrap justify-between items-center bg-white border-4 border-black p-4 rounded-3xl">
             <div class="flex items-center gap-4">
@@ -89,6 +105,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="lg:col-span-4">
                 <div class="farm-bg comic-border">
                     <div class="p-3 bg-black/50 border-b-4 border-black sticky top-0 z-10 text-center text-white font-black uppercase italic" style="font-family: 'Bangers'">ĐỒNG CỪU ƯU TÚ 🐑</div>
@@ -98,23 +115,22 @@
         </div>
     </div>
 
-    <!-- MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ -->
+    <!-- MÀN HÌNH LOGIN/REGISTER: GỐC + 2 TAB -->
     <div id="login-screen" class="fixed inset-0 z-[2000] bg-sky-500 flex items-center justify-center p-4">
         <div class="comic-border p-8 max-w-md w-full text-center space-y-4">
             <h1 class="text-3xl text-blue-700" style="font-family: 'Bangers'">THỔI CHUỖI CÙNG NHAU</h1>
             
             <div class="flex justify-around border-b-2 border-black mb-4">
-                <div id="tab-reg" class="tab-btn active" onclick="switchTab('reg')">ĐĂNG KÝ MỚI</div>
+                <div id="tab-reg" class="tab-btn active" onclick="switchTab('reg')">ĐĂNG KÝ</div>
                 <div id="tab-login" class="tab-btn" onclick="switchTab('login')">ĐĂNG NHẬP</div>
             </div>
 
-            <!-- FORM ĐĂNG KÝ -->
             <div id="form-reg" class="space-y-4">
                 <div class="grid grid-cols-3 gap-2">
-                    <div class="ava-box selected" onclick="pickAva(this, 'avatar1.jpg')"><img src="avatar1.jpg" class="h-10 mx-auto"></div>
-                    <div class="ava-box" onclick="pickAva(this, 'avatar2.jpg')"><img src="avatar2.jpg" class="h-10 mx-auto"></div>
+                    <div class="ava-box selected" onclick="pickAva(this, 'avatar1.jpg')"><img src="avatar1.jpg" class="h-10 mx-auto"><p class="text-[8px] font-bold">Cừu Non</p></div>
+                    <div class="ava-box" onclick="pickAva(this, 'avatar2.jpg')"><img src="avatar2.jpg" class="h-10 mx-auto"><p class="text-[8px] font-bold">Cừu Cute</p></div>
                     <div class="ava-box flex flex-col justify-center border-2 border-dashed border-gray-400" onclick="document.getElementById('uploadAva').click()">
-                        <div id="pre-view" class="text-[10px] font-bold">ẢNH RIÊNG</div>
+                        <div id="pre-view" class="text-[8px] font-bold">ẢNH RIÊNG</div>
                         <input type="file" id="uploadAva" class="hidden" accept="image/*" onchange="handleUpload(this)">
                     </div>
                 </div>
@@ -123,16 +139,15 @@
                 <button onclick="handleAuth('register')" class="btn-comic w-full text-xl uppercase italic">BẮT ĐẦU THỔI</button>
             </div>
 
-            <!-- FORM ĐĂNG NHẬP -->
             <div id="form-login" class="hidden space-y-4">
-                <input type="text" id="login-nick" class="w-full border-4 border-black p-3 rounded-xl text-center font-black uppercase" placeholder="TÊN CỪU ĐÃ ĐĂNG KÝ...">
+                <input type="text" id="login-nick" class="w-full border-4 border-black p-3 rounded-xl text-center font-black uppercase" placeholder="TÊN CỪU ĐÃ CÓ...">
                 <input type="password" id="login-pass" class="w-full border-4 border-black p-3 rounded-xl text-center font-black" placeholder="NHẬP MẬT KHẨU...">
                 <button onclick="handleAuth('login')" class="btn-comic w-full text-xl uppercase italic">VÀO HÀNH TRÌNH</button>
             </div>
         </div>
     </div>
 
-    <!-- WIDGET CHUỖI NHÓM -->
+    <!-- WIDGET & MODAL: GỐC -->
     <div id="group-widget" class="group-status hidden">
         <div class="comic-border p-4 bg-orange-400 border-black shadow-[4px_4px_0px_#000]">
             <p class="text-[10px] font-black uppercase text-white mb-1 text-center">Chuỗi Nhóm 🔥</p>
@@ -146,24 +161,31 @@
         </div>
     </div>
 
-    <!-- HƯỚNG DẪN CHƠI -->
     <div id="guide-modal" class="modal-overlay">
-        <div class="modal-content">
-            <h2 class="text-2xl font-black text-blue-600 mb-4" style="font-family: 'Bangers'">🐑 CÁCH CHƠI & LUẬT THỔI CHUỖI</h2>
-            <div class="text-left space-y-3 text-sm font-bold text-gray-700 bg-blue-50 p-5 rounded-2xl border-2 border-black mb-6">
+        <div class="modal-content scale-90 opacity-0 transition-all duration-500">
+            <h2 class="text-2xl font-black text-blue-600 mb-4" style="font-family: 'Bangers'">🐑 LUẬT THỔI CHUỖI CÙNG NHAU</h2>
+            <div class="text-left space-y-3 text-sm font-bold text-gray-700 bg-blue-50 p-5 rounded-2xl border-2 border-black mb-6 italic">
                 <p>• Báo danh mỗi ngày 1 lần → <b>+1 Streak cá nhân</b>.</p>
                 <p>• 30 người cùng thổi trong 1 ngày → <b>+1 Chuỗi Nhóm</b>.</p>
-                <p>• Không báo danh 1 ngày → <b>Đóng băng</b>.</p>
-                <p>• Hãy nhớ <b>Mật khẩu</b> để đăng nhập lần sau!</p>
+                <p>• Không báo danh 1 ngày → <b>Đóng băng</b>. Phá băng để tiếp tục hành trình.</p>
             </div>
-            <button onclick="enterMainGame()" class="btn-comic w-full text-2xl uppercase italic">ĐÃ HIỂU & VÀO GAME 🔥</button>
+            <button onclick="enterMainGame()" class="btn-comic w-full text-2xl uppercase italic">ĐÃ HIỂU & BẮT ĐẦU 🔥</button>
+        </div>
+    </div>
+
+    <div id="today-modal" class="modal-overlay" onclick="closeTodayList()">
+        <div class="modal-content max-w-lg" onclick="event.stopPropagation()">
+            <h2 class="text-2xl font-black text-orange-600 mb-4" style="font-family: 'Bangers'">CỪU ĐÃ THỔI HÔM NAY</h2>
+            <div id="today-sheep-list" class="grid grid-cols-4 gap-3 max-h-[400px] overflow-y-auto"></div>
+            <button onclick="closeTodayList()" class="btn-comic mt-6 mx-auto">ĐÓNG</button>
         </div>
     </div>
 
     <script>
-        const APP_URL = "https://script.google.com/macros/s/AKfycbxo3BYtEzLlv4tFECmlVlN72ovesA6lO201q1dBPXyVh_wvhah9irxSJkEEvl3cJInevA/exec"; 
+        const APP_URL = "https://script.google.com/macros/s/AKfycbyEuhu-wKJm4biDkU6oHAnQGzAMx7D4NXIAZedZ2aHKC4MQGXo5GGA-Bq3G-sIQGAG4vw/exec"; 
         let myNick = "", myPass = "", myAva = "avatar1.jpg", allUsers = [];
 
+        // --- HÀM TAB ---
         function switchTab(type) {
             document.getElementById('form-reg').classList.toggle('hidden', type === 'login');
             document.getElementById('form-login').classList.toggle('hidden', type === 'reg');
@@ -171,6 +193,7 @@
             document.getElementById('tab-login').classList.toggle('active', type === 'login');
         }
 
+        // --- GIAO DIỆN GỐC ---
         function pickAva(el, url) { document.querySelectorAll('.ava-box').forEach(x => x.classList.remove('selected')); el.classList.add('selected'); myAva = url; }
         function handleUpload(input) { if (input.files[0]) { const reader = new FileReader(); reader.onload = (e) => { myAva = e.target.result; document.getElementById('pre-view').innerText = "OK!"; }; reader.readAsDataURL(input.files[0]); } }
         function updateFileName(input) { if (input.files[0]) document.getElementById('bill-text').innerText = "ĐÃ CHỌN BILL"; }
@@ -179,40 +202,44 @@
         async function handleAuth(type) {
             myNick = document.getElementById(type === 'register' ? 'reg-nick' : 'login-nick').value.trim().toUpperCase();
             myPass = document.getElementById(type === 'register' ? 'reg-pass' : 'login-pass').value.trim();
-            if(!myNick || !myPass) return alert("Vui lòng nhập đầy đủ thông tin!");
+            if(!myNick || !myPass) return alert("Vui lòng nhập đầy đủ Tên và Mật khẩu!");
 
-            if(type === 'register') {
-                // Kiểm tra tên có tồn tại chưa
-                const res = await fetch(APP_URL);
-                const data = await res.json();
-                if(data.users.find(u => u.nickname.toUpperCase() === myNick)) return alert("Tên này đã có người đăng ký!");
-                
-                localStorage.setItem('sheep_nick', myNick);
-                localStorage.setItem('sheep_pass', myPass);
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('guide-modal').style.display = 'flex';
-            } else {
-                // Đăng nhập
-                const btn = document.querySelector('#form-login button');
-                btn.innerText = "ĐANG XÁC THỰC...";
-                const res = await fetch(APP_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'login', nickname: myNick, password: myPass })
-                });
-                const result = await res.json();
-                if(result.status === 'success') {
-                    myAva = result.avatar;
+            const btn = document.querySelector(type === 'register' ? '#form-reg button' : '#form-login button');
+            btn.innerText = "XỬ LÝ..."; btn.disabled = true;
+
+            try {
+                if(type === 'register') {
+                    const res = await fetch(APP_URL);
+                    const data = await res.json();
+                    if(data.users.find(u => u.nickname.toUpperCase() === myNick)) {
+                        alert("Tên này đã được Cừu khác đăng ký!");
+                        btn.innerText = "BẮT ĐẦU THỔI"; btn.disabled = false;
+                        return;
+                    }
                     localStorage.setItem('sheep_nick', myNick);
                     localStorage.setItem('sheep_pass', myPass);
-                    enterMainGame();
+                    document.getElementById('login-screen').classList.add('hidden');
+                    document.getElementById('guide-modal').style.display = 'flex';
+                    setTimeout(() => { document.getElementById('guide-modal').querySelector('.modal-content').classList.remove('scale-90', 'opacity-0'); }, 10);
                 } else {
-                    alert(result.msg);
-                    btn.innerText = "VÀO HÀNH TRÌNH";
+                    const res = await fetch(APP_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'login', nickname: myNick, password: myPass })
+                    });
+                    const result = await res.json();
+                    if(result.status === 'success') {
+                        myAva = result.avatar;
+                        localStorage.setItem('sheep_nick', myNick);
+                        localStorage.setItem('sheep_pass', myPass);
+                        enterMainGame();
+                    } else {
+                        alert(result.msg);
+                        btn.innerText = "VÀO HÀNH TRÌNH"; btn.disabled = false;
+                    }
                 }
-            }
+            } catch(e) { alert("Lỗi kết nối!"); btn.disabled = false; }
         }
 
-        // Tự động đăng nhập nếu có thông tin cũ
         window.onload = () => {
             const savedNick = localStorage.getItem('sheep_nick');
             const savedPass = localStorage.getItem('sheep_pass');
@@ -234,7 +261,6 @@
             document.getElementById('bgm').play().catch(() => {});
         }
 
-        // --- MAP & SYNC (Giữ nguyên giao diện của bạn) ---
         function initMap() {
             const map = document.getElementById('game-map'); map.innerHTML = `<img id="player-pawn" src="${myAva}">`;
             for (let i = 1; i <= 60; i++) {
@@ -267,9 +293,9 @@
 
         async function doAction(type) {
             const amt = document.getElementById('amt').value, billFile = document.getElementById('bill').files[0];
-            if(type === 'submit' && (!amt || !billFile)) return alert("Vui lòng nhập tiền và bill!");
+            if(type === 'submit' && (!amt || !billFile)) return alert("Vui lòng điền đủ tiền và bill!");
             const btn = type === 'submit' ? document.getElementById('btnSubmit') : document.getElementById('btnRestore');
-            btn.disabled = true; btn.innerText = "Xử lý...";
+            btn.disabled = true; btn.innerText = "XỬ LÝ...";
             let proof = ""; if (type === 'submit') proof = await new Promise(r => { const f = new FileReader(); f.readAsDataURL(billFile); f.onload = () => r(f.result); });
             try {
                 const res = await fetch(APP_URL, { method: 'POST', body: JSON.stringify({ action: type, nickname: myNick, password: myPass, amount: amt, proof: proof, avatar: myAva }) });
