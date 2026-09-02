@@ -92,7 +92,7 @@
                             <img src="qrcaptain.jpg" class="w-20 h-20 mx-auto">
                         </div>
                         <div class="space-y-2 text-left">
-                            <input type="number" id="amt-broken" placeholder="Số tiền bù..." class="w-full p-2 rounded-lg text-black font-bold text-sm">
+                            <input type="number" id="amt-broken" placeholder="Số tiền bù khôi phục chuỗi ..." class="w-full p-2 rounded-lg text-black font-bold text-sm">
                             <input type="file" id="bill-broken" class="hidden" onchange="document.getElementById('text-bill-broken').innerText='ĐÃ CHỌN BILL'">
                             <button onclick="document.getElementById('bill-broken').click()" class="w-full bg-slate-600 border border-dashed p-2 text-[10px] rounded-lg"><span id="text-bill-broken">TẢI BILL BÙ</span></button>
                             <button id="btnRestore" onclick="doAction('restore')" class="btn-comic w-full bg-blue-500 border-white text-sm">XÁC NHẬN BÙ & PHÁ BĂNG 🆘</button>
@@ -105,7 +105,7 @@
                 <div id="action-box" class="comic-border p-6 bg-yellow-50">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                         <div class="space-y-2">
-                            <label class="font-black text-[10px] uppercase">Số tiền DNT (> 0 đ):</label>
+                            <label class="font-black text-[10px] uppercase">Số tiền DNT (> 0 đ): mỗi ngày chỉ tính báo danh 1 lần </label>
                             <input type="number" id="amt" placeholder="Ví dụ: 11.603" class="w-full border-4 border-black p-3 rounded-xl font-bold bg-white">
                             <button type="button" onclick="document.getElementById('bill').click()" class="w-full border-2 border-dashed border-black p-2 rounded-xl font-black text-[10px] bg-white uppercase"><span id="bill-text">TẢI BILL MINH CHỨNG</span></button>
                             <input type="file" id="bill" class="hidden" onchange="document.getElementById('bill-text').innerText='ĐÃ CHỌN BILL'">
@@ -168,7 +168,7 @@
                 <p>• Mỗi ngày Cừu báo danh 1 lần → <b>+1 Streak cá nhân</b>.</p>
                 <p>• 30 cừu báo danh cùng ngày → <b>+1 Streak Nhóm</b>.</p>
                 <p>• Không báo danh 1 ngày → <b>Hành trình đóng băng</b>.</p>
-                <p>• Phá băng bằng cách bấm KHÔI PHỤC (Cộng 1 Streak bù, sau đó cần báo danh tiếp để + streak hôm đó).</p>
+                <p>• Phá băng bằng cách bấm KHÔI PHỤC BÙ (Cộng 1 Streak bù, sau đó cần báo danh tiếp để + streak hôm đó).</p>
                 <p>• Hãy nhớ Tên và Mật khẩu để đăng nhập lần sau!</p>
             </div>
             <button onclick="enterMainGame()" class="btn-comic w-full text-2xl uppercase italic">ĐÃ HIỂU & VÀO GAME 🔥</button>
@@ -338,7 +338,7 @@
             try {
                 const res = await fetch(APP_URL, { method: 'POST', body: JSON.stringify({ action: type, nickname: myNick, password: myPass, amount: amt, proof: proof, avatar: myAva }) });
                 const result = await res.json();
-                if(result.status === 'success') { alert(type === 'submit' ? "Báo danh thành công!" : "Đã DNT bù!"); sync(); }
+                if(result.status === 'success') { alert(type === 'submit' ? "Báo danh thành công!" : "Đã DNT bù, hãy báo danh hôm nay ở dưới nhé!"); sync(); }
                 else { alert(result.msg); }
             } catch(e) { alert("Lỗi mạng!"); }
             btn.disabled = false; btn.innerText = type === 'submit' ? "Gửi báo danh 🔥" : "XÁC NHẬN BÙ & PHÁ BĂNG 🆘";
@@ -390,7 +390,7 @@
             const listDiv = document.getElementById('today-sheep-list'); listDiv.innerHTML = '';
             const today = new Date().toLocaleDateString('en-CA');
             const todaySheep = allUsers.filter(u => u.lastUpdate && u.lastUpdate.split('T')[0] === today && u.isReportedToday);
-            if(!todaySheep.length) listDiv.innerHTML = '<p class="col-span-4 text-gray-400 italic py-4 text-center">Chưa có ai thổi hôm nay...</p>';
+            if(!todaySheep.length) listDiv.innerHTML = '<p class="col-span-4 text-gray-400 italic py-4 text-center">Chưa có ai thổi chuỗi hôm nay...</p>';
             todaySheep.forEach(s => listDiv.innerHTML += `<div class="flex flex-col items-center"><img src="${s.avatar}" class="w-12 h-12 rounded-full border-2 border-black object-cover"><p class="text-[8px] font-bold uppercase mt-1 truncate w-full text-center">${s.nickname}</p></div>`);
             document.getElementById('today-modal').style.display = 'flex';
         }
