@@ -424,6 +424,12 @@
     }
     document.getElementById('today-modal').style.display = 'flex';
 }
+   function closeTodayList() {
+    // Ẩn modal
+    document.getElementById('today-modal').style.display = 'none';
+    // Reset lại thanh cuộn của danh sách lên đầu cho lần sau
+    document.getElementById('today-sheep-list').scrollTop = 0;
+}
     </script>
 </body>
 </html>
